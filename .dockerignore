@@ -3,9 +3,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.db
-.sqlite
+# .db
+# .sqlite
 .env
 .git
 .gitignore
-instance/
+# instance/
