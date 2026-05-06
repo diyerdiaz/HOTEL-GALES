@@ -13,7 +13,7 @@ services:
     # Variables de entorno
     environment:
       - FLASK_APP=run.py
-      - FLASK_ENV=development
+      - FLASK_DEBUG=1
       - SECRET_KEY=una_clave_secreta_muy_segura_123
       # Aquí podrías cambiar a una DB externa en el futuro
       # - DATABASE_URL=postgresql://user:password@db:5432/hotel_db
