@@ -8,10 +8,7 @@ env/
 venv/
 ENV/
 
-# Database db
-instance/
-*.sqlite
-flaskdb.sqlite
+
 
 # IDEs
 .vscode/
