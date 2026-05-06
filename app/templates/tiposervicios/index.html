@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Categorías de Servicios{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+    {% for tipo in tipos %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ tipo.nombreTipoServicio }}
+        <span class="badge bg-secondary rounded-pill">{{ tipo.servicios|length }} servicios</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

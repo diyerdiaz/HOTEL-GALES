@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Factura Electrónica #{{ factura.idFactura }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="invoice-container shadow-lg">
+                <!-- Header -->
+                <div class="invoice-header d-flex justify-content-between align-items-center p-5">
+                    <div>
+                        <h1 class="hotel-name mb-0">HOTEL GALES</h1>
+                        <p class="hotel-info mb-0">Calle Real 123, Ciudad Elegancia</p>
+                        <p class="hotel-info mb-0">Tel: +57 300 123 4567</p>
+                        <p class="hotel-info mb-0">NIT: 900.123.456-7</p>
+                    </div>
+                    <div class="text-end d-flex align-items-center gap-3">
+                        <div class="qr-container bg-white p-1 rounded shadow-sm">
+                            <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Validación" width="80" height="80">
+                        </div>
+                        <div class="text-end">
+                            <div class="invoice-badge">FACTURA ELECTRÓNICA</div>
+                            <h4 class="mt-2 mb-0 text-white">#{{ "%06d" | format(factura.idFactura) }}</h4>
+                            <p class="mb-0 text-white-50 small">Fecha: {{ factura.fechaFactura.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="invoice-body p-5">
+                    <div class="row mb-5">
+                        <div class="col-sm-6">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3">Cliente</h6>
+                            <h5 class="mb-1">{{ factura.reserva.cliente.nombre }} {{
+                                factura.reserva.cliente.apellido }}</h5>
+                            <p class="mb-1"><strong>C.C:</strong> {{ factura.reserva.cliente.cedula }}</p>
+                            <p class="mb-0"><strong>Tel:</strong> {{ factura.reserva.cliente.telefono }}</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3">Detalle de Estancia</h6>
+                            <p class="mb-1"><strong>Reserva:</strong> #{{ factura.idReserva }}</p>
+                            <p class="mb-1"><strong>Desde:</strong> {{ factura.reserva.fechaEntrada.strftime('%d/%m/%Y')
+                                }}</p>
+                            <p class="mb-0"><strong>Hasta:</strong> {{ factura.reserva.fechaSalida.strftime('%d/%m/%Y')
+                                }}</p>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-borderless invoice-table">
+                            <thead>
+                                <tr class="border-bottom">
+                                    <th>Descripción</th>
+                                    <th class="text-center">Cant. Días</th>
+                                    <th class="text-end">Costo/Noche</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Habitación #{{ factura.reserva.habitacion.numeroHabitacion
+                                            }}</strong><br>
+                                        <small class="text-muted">{{ factura.reserva.habitacion.tipo.nombreTipo
+                                            }}</small>
+                                    </td>
+                                    <td class="text-center">{{ dias }}</td>
+                                    <td class="text-end">{{ factura.reserva.habitacion.precioNoche | cop }}</td>
+                                    <td class="text-end fw-bold">{{ factura.totalFactura | cop }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-sm-7">
+                            <p class="text-muted small">
+                                <strong>Nota:</strong> Esta factura es un documento digital generado por el sistema de
+                                gestión del Hotel Gales.
+                                Gracias por su preferencia.
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-end">
+                            <div class="invoice-total-card p-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>{{ factura.totalFactura | cop }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>IVA (0%):</span>
+                                    <span>{{ 0 | cop }}</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between h4 mb-0 fw-bold">
+                                    <span>TOTAL:</span>
+                                    <span>{{ factura.totalFactura | cop }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="invoice-footer text-center p-4">
+                    <button class="btn btn-gold px-4" onclick="descargarPDF('{{ factura.idFactura }}')">
+                        <i class="bi bi-file-earmark-pdf me-2"></i> Descargar PDF
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i> Imprimir Factura
+                    </button>
+                    <a href="{{ url_for('facturas.index') }}" class="btn btn-outline-secondary ms-2">
+                        Volver a Facturas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Librería para generar PDF desde el navegador -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Script personalizado para facturas -->
+<script src="{{ url_for('static', filename='js/facturas.js') }}"></script>
+
+{% endblock %}

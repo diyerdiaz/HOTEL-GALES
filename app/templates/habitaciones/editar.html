@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block titulo_contenido %}Editar Habitación {{ hab.numeroHabitacion }}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="content-card-header">
+    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Actualizar Información</h5>
+  </div>
+  <div class="content-card-body">
+    <form method="POST" class="row g-3">
+      
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Número de Habitación</label>
+        <input type="text" name="numeroHabitacion" class="form-control" value="{{ hab.numeroHabitacion }}" required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Tipo de Habitación</label>
+        <select name="idTipoHabitacion" class="form-select" required>
+          {% for tipo in tipos %}
+          <option value="{{ tipo.idTipoHabitacion }}" {% if hab.idTipoHabitacion == tipo.idTipoHabitacion %}selected{% endif %}>
+            {{ tipo.nombreTipo }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Precio por Noche (COP)</label>
+        <div class="input-group">
+          <span class="input-group-text">COP $</span>
+          <input type="number" step="1" name="precioNoche" class="form-control" value="{{ hab.precioNoche | int }}" required>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Estado Actual</label>
+        <select name="estadoHabitacion" class="form-select">
+          <option value="disponible" {% if hab.estadoHabitacion == 'disponible' %}selected{% endif %}>Disponible</option>
+          <option value="ocupada" {% if hab.estadoHabitacion == 'ocupada' %}selected{% endif %}>Ocupada</option>
+          <option value="mantenimiento" {% if hab.estadoHabitacion == 'mantenimiento' %}selected{% endif %}>Mantenimiento</option>
+          <option value="limpieza" {% if hab.estadoHabitacion == 'limpieza' %}selected{% endif %}>Limpieza</option>
+        </select>
+      </div>
+
+      <div class="col-12 mt-4">
+        <hr>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-hotel px-4">
+            <i class="bi bi-check-lg"></i> Guardar Cambios
+          </button>
+          <a href="{{ url_for('habitaciones.index') }}" class="btn btn-outline-secondary px-4">
+            Volver
+          </a>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

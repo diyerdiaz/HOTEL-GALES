@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{% endblock %}
+{% block content %}
+<div class="content-card">
+  <div class="content-card-header">
+    <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>{{ _('Nueva Reserva') }}</h5>
+  </div>
+  <div class="content-card-body">
+    <form method="POST">
+      {% if current_user.rol != 'cliente' %}
+      <div class="mb-4">
+        <label class="form-label fw-bold"><i class="bi bi-person-badge"></i> {{ _('Seleccionar Cliente') }}</label>
+        <select name="cedula_cliente" class="form-select" required>
+          <option value="" disabled selected>{{ _('Busca el cliente por nombre o cédula...') }}</option>
+          {% for c in clientes %}
+          <option value="{{ c.cedula }}">{{ c.nombre }} {{ c.apellido }} (C.C. {{ c.cedula }})</option>
+          {% endfor %}
+        </select>
+        <div class="form-text small">{{ _('¿No está en la lista?') }} <a href="{{ url_for('clientes.index') }}">{{ _('Registrar nuevo cliente') }}</a></div>
+      </div>
+      {% endif %}
+
+      <div class="row mb-4">
+        <div class="col-md-8">
+            <label class="form-label fw-bold"><i class="bi bi-door-closed"></i> {{ _('Habitación Disponible') }}</label>
+            <select name="id_habitacion" class="form-select" required>
+              <option value="" disabled {% if not habitacion_id %}selected{% endif %}>Elige una habitación...</option>
+              {% for hab in habitaciones %}
+              <option value="{{ hab.idHabitacion }}" {% if habitacion_id == hab.idHabitacion %}selected{% endif %}>
+                {{ _('Hab.') }} {{ hab.numeroHabitacion }} — {{ hab.tipo.nombreTipo }} ({{ hab.precioNoche | cop }}/{{ _('noche') }})
+              </option>
+              {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold"><i class="bi bi-people"></i> {{ _('Personas') }}</label>
+            <input type="number" name="cantidad_personas" class="form-control" value="1" min="1" max="10">
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold"><i class="bi bi-calendar-event"></i> Fecha de Entrada</label>
+          <input type="date" name="fecha_entrada" class="form-control" min="{{ hoy }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold"><i class="bi bi-calendar-check"></i> Fecha de Salida</label>
+          <input type="date" name="fecha_salida" class="form-control" min="{{ hoy }}" required>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-bold"><i class="bi bi-credit-card"></i> Método de Pago</label>
+        <div class="d-flex gap-3 flex-wrap">
+          <div class="form-check border rounded p-3 flex-grow-1">
+            <input class="form-check-input" type="radio" name="metodo_pago" id="pago1" value="Tarjeta de Credito" checked>
+            <label class="form-check-label" for="pago1"><i class="bi bi-credit-card"></i> Tarjeta</label>
+          </div>
+          <div class="form-check border rounded p-3 flex-grow-1">
+            <input class="form-check-input" type="radio" name="metodo_pago" id="pago2" value="Transferencia">
+            <label class="form-check-label" for="pago2"><i class="bi bi-bank"></i> Transferencia</label>
+          </div>
+          <div class="form-check border rounded p-3 flex-grow-1">
+            <input class="form-check-input" type="radio" name="metodo_pago" id="pago3" value="Efectivo">
+            <label class="form-check-label" for="pago3"><i class="bi bi-cash"></i> Efectivo</label>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info small border-0 bg-light">
+        <i class="bi bi-info-circle-fill"></i> Se realizará el cargo de la primera noche al confirmar.
+      </div>
+      <button type="submit" class="btn btn-hotel w-100 py-3">
+        {{ _('CONFIRMAR RESERVA') }} <i class="bi bi-check-circle-fill"></i>
+      </button>
+    </form>
+  </div>
+</div>
+<script>
+  const entrada = document.querySelector('[name="fecha_entrada"]');
+  const salida  = document.querySelector('[name="fecha_salida"]');
+  if (entrada && salida) entrada.addEventListener('change', () => { salida.min = entrada.value; });
+</script>
+{% endblock %}

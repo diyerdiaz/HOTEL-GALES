@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Estado de Consumos{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Reserva #</th>
+                <th>Servicio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in consumos %}
+            <tr>
+                <td>{{ c.idReserva }}</td>
+                <td>{{ c.servicio.nombreServicio }}</td>
+                <td>{{ c.cantidad }}</td>
+                <td class="fw-bold">${{ c.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

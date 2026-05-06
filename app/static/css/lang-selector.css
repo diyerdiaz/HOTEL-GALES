@@ -1,0 +1,125 @@
+/* --- Premium Language Selector (Standalone Dropdown) --- */
+.lang-dropdown {
+  position: relative;
+  display: inline-block;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btn-premium-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid rgba(212, 175, 55, 0.4);
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a3a6a; /* Dark royal blue */
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-decoration: none !important;
+  cursor: pointer;
+  outline: none;
+}
+
+.btn-premium-lang:hover, .btn-premium-lang:focus {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #0f2437;
+}
+
+.btn-premium-lang i.bi-globe2 {
+  color: #d4af37; /* Hotel Gold */
+  font-size: 1.2rem;
+}
+
+.btn-premium-lang .chevron {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  color: #666;
+  margin-left: 4px;
+}
+
+/* Hide default bootstrap arrow if present */
+.btn-premium-lang::after {
+  display: none !important; 
+}
+
+/* Dropdown Menu Custom */
+.lang-dropdown-menu {
+  display: none; /* Crucial for working without Bootstrap CSS */
+  position: absolute;
+  right: 0;
+  top: 100%;
+  list-style: none;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 16px;
+  padding: 8px;
+  margin: 0;
+  margin-top: 10px;
+  min-width: 160px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  border-top: 4px solid #d4af37;
+  z-index: 9999;
+}
+
+/* When Bootstrap JS adds 'show' class */
+.lang-dropdown-menu.show {
+  display: block;
+  animation: slideUp 0.3s ease forwards;
+}
+
+.lang-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #444;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.lang-dropdown-item:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+  text-decoration: none;
+  transform: translateX(3px);
+}
+
+.lang-dropdown-item.active {
+  background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+  color: white !important;
+  font-weight: 600;
+}
+
+.lang-dropdown-item span.flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Login Page Overrides if needed */
+.login-page .btn-premium-lang {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}

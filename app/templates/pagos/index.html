@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{% endblock %}
+{% block content %}
+<div class="content-card">
+  <div class="content-card-header"><h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Registro de Pagos</h5></div>
+  <div class="content-card-body">
+    <div class="table-responsive">
+      <table class="table table-hover text-center align-middle mb-0">
+        <thead><tr><th>Ticket#</th><th>Reserva#</th><th>Fecha</th><th>Método</th><th>Valor</th></tr></thead>
+        <tbody>
+          {% for p in pagos %}
+          <tr>
+            <td>{{ p.idPago }}</td><td>{{ p.idReserva }}</td>
+            <td>{{ p.fechaPago }}</td>
+            <td><span class="badge bg-secondary">{{ p.metodoPago }}</span></td>
+            <td class="fw-bold text-success">${{ p.valorPago }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">Sin registros de pago.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

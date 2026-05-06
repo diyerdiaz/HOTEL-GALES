@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="content-card-header">
+    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>{{ _('Gestión de Clientes') }}</h5>
+    <a href="#" class="btn btn-sm btn-light ms-auto"><i class="bi bi-person-plus"></i> {{ _('Nuevo Cliente') }}</a>
+  </div>
+  <div class="content-card-body">
+    <!-- Barra de Búsqueda -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <form action="{{ url_for('clientes.index') }}" method="GET" class="d-flex gap-2">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                   placeholder="{{ _('Buscar cliente por nombre o apellido...') }}" 
+                   value="{{ request.args.get('search', '') }}">
+          </div>
+          <button type="submit" class="btn btn-dark-royal text-gold px-4">{{ _('Buscar') }}</button>
+          {% if request.args.get('search') %}
+            <a href="{{ url_for('clientes.index') }}" class="btn btn-outline-secondary">{{ _('Limpiar') }}</a>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th class="ps-3"><i class="bi bi-person-vcard me-1"></i> {{ _('Cédula') }}</th>
+            <th>{{ _('Cliente') }}</th>
+            <th>{{ _('Contacto') }}</th>
+            <th class="text-center"><i class="bi bi-bar-chart-fill me-1"></i> {{ _('Estadísticas (Reservas)') }}</th>
+            <th class="text-end pe-3">{{ _('Acciones') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cliente in clientes %}
+          <tr>
+            <td class="ps-3 fw-bold">{{ cliente.cedula }}</td>
+            <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
+            <td>
+              <div class="small">
+                <div><i class="bi bi-telephone text-muted me-1"></i> {{ cliente.telefono or 'N/A' }}</div>
+                <div><i class="bi bi-envelope text-muted me-1"></i> {{ cliente.email or 'N/A' }}</div>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="badge bg-primary rounded-pill me-1" title="{{ _('Total Reservas') }}">{{ cliente.total_r }} {{ _('Total') }}</span>
+              <span class="badge bg-info rounded-pill me-1" title="{{ _('En curso') }}">{{ cliente.ocu_r }} <i class="bi bi-clock"></i></span>
+              <span class="badge bg-success rounded-pill me-1" title="{{ _('Finalizadas') }}">{{ cliente.fin_r }} <i class="bi bi-check"></i></span>
+              <span class="badge bg-danger rounded-pill" title="{{ _('Canceladas') }}">{{ cliente.can_r }} <i class="bi bi-x"></i></span>
+            </td>
+            <td class="text-end pe-3">
+              <button class="btn btn-sm btn-outline-primary" 
+                      title="{{ _('Ver Perfil') }}"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#clienteModal"
+                      data-cedula="{{ cliente.cedula }}"
+                      data-nombre="{{ cliente.nombre }}"
+                      data-apellido="{{ cliente.apellido }}"
+                      data-telefono="{{ cliente.telefono or 'N/A' }}"
+                      data-email="{{ cliente.email or 'N/A' }}"
+                      data-direccion="{{ cliente.direccion or 'No especificada' }}"
+                      data-fecha="{{ cliente.fechaNacimiento or 'N/A' }}"
+                      data-total="{{ cliente.total_r }}"
+                      data-fin="{{ cliente.fin_r }}"
+                      data-can="{{ cliente.can_r }}"
+                      data-ocu="{{ cliente.ocu_r }}"
+                      data-reservas-json='{{ cliente.reservas_json|safe }}'>
+                <i class="bi bi-eye"></i> {{ _('Perfil Completo') }}
+              </button>
+            </td>
+          </tr>
+          
+          <!-- Fila de recepcionistas que atendieron -->
+          {% if cliente.recepcionistas_atendieron %}
+          <tr class="bg-light">
+            <td colspan="5" class="ps-3 py-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-person-badge text-primary"></i>
+                <small class="fw-bold text-muted">{{ _('ATENDIDO POR') }}:</small>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                {% for recepcionista in cliente.recepcionistas_atendieron %}
+                <div class="card border-0 shadow-sm" style="min-width: 200px;">
+                  <div class="card-body p-2 d-flex align-items-center gap-2">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                      <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold small">{{ recepcionista.nombre }}</div>
+                      <div class="d-flex align-items-center gap-2" style="font-size: 0.7rem;">
+                        <span class="text-muted">{{ recepcionista.fecha_reserva.strftime('%d/%m/%Y') }}</span>
+                        <span class="badge {% if recepcionista.estado == 'cancelada' %}bg-danger{% elif recepcionista.estado == 'finalizada' %}bg-success{% else %}bg-info{% endif %} p-1" style="font-size: 0.6rem;">
+                          {{ recepcionista.estado|upper }}
+                        </span>
+                        <span class="fw-bold text-dark">{{ recepcionista.total|cop }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">{{ _('No hay clientes registrados.') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Animación de despliegue desde el centro (Zoom-in) */
+  .modal-zoom .modal-dialog {
+    transform: scale(0.7);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+  .modal-zoom.show .modal-dialog {
+    transform: scale(1) !important;
+  }
+  
+  .profile-label {
+    font-weight: 700;
+    color: var(--dark-royal);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    opacity: 0.8;
+  }
+  .profile-value {
+    font-size: 1.1rem;
+    color: #374151;
+    margin-bottom: 1.5rem;
+    padding-left: 2px;
+  }
+  .modal-content {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Modal de Perfil de Cliente -->
+<div class="modal fade modal-zoom" id="clienteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-0 text-white" style="background: linear-gradient(135deg, var(--dark-royal) 0%, #1f2d70 100%);">
+        <h5 class="modal-title"><i class="bi bi-person-badge me-2"></i>{{ _('Perfil del Cliente') }}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row">
+          <div class="col-6">
+            <div class="profile-label">{{ _('Cédula') }}</div>
+            <div id="modal-cedula" class="profile-value fw-bold"></div>
+          </div>
+          <div class="col-6">
+            <div class="profile-label">{{ _('Dirección') }}</div>
+            <div id="modal-direccion" class="profile-value"></div>
+          </div>
+          
+          <div class="col-12"><hr class="my-2 opacity-10"></div>
+          
+          <div class="col-12">
+            <div class="profile-label">{{ _('Nombre Completo') }}</div>
+            <div id="modal-nombre-completo" class="profile-value fw-bold text-dark" style="font-size: 1.15rem;"></div>
+          </div>
+          
+          <div class="col-6">
+            <div class="profile-label">{{ _('Teléfono') }}</div>
+            <div id="modal-telefono" class="profile-value"></div>
+          </div>
+          <div class="col-6">
+            <div class="profile-label">{{ _('Email') }}</div>
+            <div id="modal-email" class="profile-value"></div>
+          </div>
+          
+          <div class="col-12"><hr class="my-3 opacity-10"></div>
+          
+          <div class="col-12">
+            <div class="profile-label text-center mb-3"><i class="bi bi-bar-chart-line me-2"></i>{{ _('Resumen de Reservas') }}</div>
+            <div class="d-flex justify-content-around bg-light p-3 rounded-4 shadow-sm">
+                <div class="text-center">
+                    <h3 id="modal-r-total" class="fw-bold text-primary mb-1">0</h3>
+                    <small class="text-muted fw-bold d-block">{{ _('Totales') }}</small>
+                </div>
+                <div class="text-center border-start ps-4">
+                    <h3 id="modal-r-ocu" class="fw-bold text-info mb-1">0</h3>
+                    <small class="text-muted fw-bold d-block">{{ _('En Curso') }}</small>
+                </div>
+                <div class="text-center border-start ps-4">
+                    <h3 id="modal-r-fin" class="fw-bold text-success mb-1">0</h3>
+                    <small class="text-muted fw-bold d-block">{{ _('Finalizadas') }}</small>
+                </div>
+                <div class="text-center border-start ps-4">
+                    <h3 id="modal-r-can" class="fw-bold text-danger mb-1">0</h3>
+                    <small class="text-muted fw-bold d-block">{{ _('Canceladas') }}</small>
+                </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tabla de historial de reservas detallado -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="profile-label mb-2"><i class="bi bi-list-stars me-2"></i>{{ _('Historial Detallado') }}</div>
+            <div class="table-responsive" style="max-height: 250px;">
+              <table class="table table-sm table-hover border">
+                <thead class="bg-light sticky-top">
+                  <tr>
+                    <th>{{ _('Fecha') }}</th>
+                    <th>{{ _('Habitacion') }}</th>
+                    <th>{{ _('Estado') }}</th>
+                    <th class="text-end">{{ _('Total') }}</th>
+                  </tr>
+                </thead>
+                <tbody id="modal-reservas-tabla">
+                  <!-- Se llena con JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 bg-light">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" style="border-radius: 8px;">{{ _('Cerrar') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const clienteModal = document.getElementById('clienteModal');
+    if (clienteModal) {
+      clienteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        
+        // Extraer info de los data-attributes
+        const cedula = button.getAttribute('data-cedula');
+        const nombre = button.getAttribute('data-nombre');
+        const apellido = button.getAttribute('data-apellido');
+        const telefono = button.getAttribute('data-telefono');
+        const email = button.getAttribute('data-email');
+        const direccion = button.getAttribute('data-direccion');
+        const fecha = button.getAttribute('data-fecha');
+        const total = button.getAttribute('data-total');
+        const fin = button.getAttribute('data-fin');
+        const can = button.getAttribute('data-can');
+        const ocu = button.getAttribute('data-ocu');
+        const reservasJson = JSON.parse(button.getAttribute('data-reservas-json') || '[]');
+        
+        // Poblar el modal
+        document.getElementById('modal-cedula').textContent = cedula;
+        document.getElementById('modal-nombre-completo').textContent = `${nombre} ${apellido}`;
+        document.getElementById('modal-telefono').textContent = telefono;
+        document.getElementById('modal-email').textContent = email;
+        document.getElementById('modal-direccion').textContent = direccion;
+        document.getElementById('modal-r-total').textContent = total;
+        document.getElementById('modal-r-ocu').textContent = ocu;
+        document.getElementById('modal-r-fin').textContent = fin;
+        document.getElementById('modal-r-can').textContent = can;
+
+        // Poblar tabla de reservas detallada
+        const tablaBody = document.getElementById('modal-reservas-tabla');
+        tablaBody.innerHTML = '';
+        
+        if (reservasJson.length === 0) {
+            tablaBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Sin historial de reservas</td></tr>';
+        } else {
+            reservasJson.forEach(res => {
+                let badgeClass = 'bg-info';
+                if (res.estado === 'cancelada') badgeClass = 'bg-danger';
+                if (res.estado === 'finalizada') badgeClass = 'bg-success';
+                
+                const row = `
+                    <tr>
+                        <td>${res.fecha}</td>
+                        <td>Hab. ${res.habitacion}</td>
+                        <td><span class="badge ${badgeClass}">${res.estado.toUpperCase()}</span></td>
+                        <td class="text-end fw-bold">$ ${res.total.toLocaleString('de-DE')}</td>
+                    </tr>
+                `;
+                tablaBody.innerHTML += row;
+            });
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

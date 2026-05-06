@@ -1,0 +1,102 @@
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: var(--dark-royal, #0c1433); border-bottom: 2px solid #d4af37;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{{ url_for('auth.menu') }}" style="color: #d4af37;">
+            <i class="bi bi-bank2"></i> HOTEL GALES
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            {% if current_user.is_authenticated %}
+            <ul class="navbar-nav me-auto">
+                <!-- ADMINISTRACIÓN -->
+                {% if current_user.es_administrador() %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear-fill"></i> {{ _('Administración') }}
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{{ url_for('usuarios.listar_usuarios') }}"><i class="bi bi-people"></i> {{ _('Usuarios') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('empleados.index') }}"><i class="bi bi-briefcase"></i> {{ _('Empleados') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('rolempleados.index') }}"><i class="bi bi-shield-lock"></i> {{ _('Roles de Personal') }}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('tipohabitaciones.index') }}"><i class="bi bi-tags"></i> {{ _('Tipos de Habitación') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('tiposervicios.index') }}"><i class="bi bi-collection"></i> {{ _('Tipos de Servicio') }}</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                
+                <!-- MENÚ EXCLUSIVO PARA CLIENTES -->
+                {% if current_user.rol == 'cliente' %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url_for('habitaciones.index') }}">
+                        <i class="bi bi-door-open"></i> {{ _('Ver Habitaciones') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url_for('reservas.index') }}">
+                        <i class="bi bi-calendar-check"></i> {{ _('Mis Reservas') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url_for('reservas.nueva') }}">
+                        <i class="bi bi-plus-circle"></i> {{ _('Reservar Ahora') }}
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- OPERACIÓN (Visible para personal) -->
+                {% if current_user.rol != 'cliente' %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-building"></i> {{ _('Instalaciones') }}
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{{ url_for('habitaciones.index') }}"><i class="bi bi-door-closed"></i> {{ _('Habitaciones') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('mantenimientos.index') }}"><i class="bi bi-tools"></i> {{ _('Mantenimientos') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('servicios.index') }}"><i class="bi bi-cup-hot"></i> {{ _('Catálogo de Servicios') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('limpieza.mis_tareas') }}"><i class="bi bi-stars"></i> {{ _('Limpieza') }}</a></li>
+                    </ul>
+                </li>
+
+                <!-- GESTIÓN -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-journal-text"></i> {{ _('Gestión') }}
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{{ url_for('clientes.index') }}"><i class="bi bi-person-badge"></i> {{ _('Clientes') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('reservas.index') }}"><i class="bi bi-calendar-check"></i> {{ _('Reservas') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('consumos.index') }}"><i class="bi bi-cart"></i> {{ _('Consumos') }}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('pagos.index') }}"><i class="bi bi-cash-stack"></i> {{ _('Pagos') }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('facturas.index') }}"><i class="bi bi-receipt"></i> {{ _('Facturación') }}</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="nav-link badge bg-light text-dark px-3 py-2 me-3">
+                        <i class="bi bi-person-circle"></i> {{ current_user.usuario }} ({{ current_user.rol }})
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-danger btn-sm fw-bold" href="{{ url_for('auth.logout') }}">
+                        <i class="bi bi-power"></i> {{ _('Salir') }}
+                    </a>
+                </li>
+            </ul>
+            {% else %}
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-hotel btn-sm px-4" href="{{ url_for('auth.login') }}">{{ _('Iniciar Sesión') }}</a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>

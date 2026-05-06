@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Gales - {{ _('Crear Cuenta') }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.12.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lang-selector.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .step-hidden { display: none; }
+        .progress-bar-custom {
+            height: 4px;
+            background: #e9ecef;
+            margin-bottom: 2rem;
+            border-radius: 2px;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #d4af37;
+            width: 50%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher for Register -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; align-items: center;">
+        <!-- Dark Mode Toggle -->
+        <button id="darkModeToggle" class="btn-premium-lang shadow-sm" style="width: 45px; height: 45px; justify-content: center; padding: 0;">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+        <div class="lang-dropdown">
+            <button class="btn-premium-lang dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-globe2"></i>
+                {% if session.get('language', 'es') == 'es' %}
+                    <span><span class="fi fi-es rounded-circle"></span> <span class="lang-text">Español</span></span>
+                {% else %}
+                    <span><span class="fi fi-us rounded-circle"></span> <span class="lang-text">English</span></span>
+                {% endif %}
+                <i class="bi bi-chevron-down chevron ms-1"></i>
+            </button>
+            <ul class="dropdown-menu lang-dropdown-menu">
+                <li>
+                    <a class="lang-dropdown-item {{ 'active' if session.get('language', 'es') == 'es' else '' }}" href="{{ url_for('auth.set_language', lang='es') }}">
+                        <span class="fi fi-es rounded-circle"></span> Español
+                    </a>
+                </li>
+                <li>
+                    <a class="lang-dropdown-item {{ 'active' if session.get('language') == 'en' else '' }}" href="{{ url_for('auth.set_language', lang='en') }}">
+                        <span class="fi fi-us rounded-circle"></span> English
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-image">
+                <div class="auth-image-content">
+                    <h2>Hotel Gales</h2>
+                    <p>{{ _('Su escape de lujo comienza aquí') }}</p>
+                </div>
+            </div>
+
+            <div class="auth-form">
+                <h1 id="form-title">{{ _('Crear Cuenta') }}</h1>
+                <p class="subtitle" id="form-subtitle">{{ _('Paso 1: Información Personal') }}</p>
+
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+
+
+                <form method="post" action="{{ url_for('auth.register') }}" id="register-form">
+                    
+                    <!-- PASO 1: DATOS PERSONALES -->
+                    <div id="step-1">
+                        <div class="form-group">
+                            <label for="cedula">{{ _('CÉDULA / ID') }}</label>
+                            <input type="number" id="cedula" name="cedula" placeholder="{{ _('Número de identificación') }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="nombre">{{ _('NOMBRE') }}</label>
+                                    <input type="text" id="nombre" name="nombre" placeholder="{{ _('Tu nombre') }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="apellido">{{ _('APELLIDO') }}</label>
+                                    <input type="text" id="apellido" name="apellido" placeholder="{{ _('Tu apellido') }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">{{ _('CORREO ELECTRÓNICO') }}</label>
+                            <input type="email" id="email" name="email" placeholder="{{ _('ejemplo@correo.com') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefono">{{ _('TELÉFONO DE CONTACTO') }}</label>
+                            <input type="tel" id="telefono" name="telefono" placeholder="{{ _('Ej: 3101234567') }}" required>
+                        </div>
+
+                        <button type="button" class="btn-auth" onclick="nextStep()">
+                            {{ _('SIGUIENTE') }} <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- PASO 2: CREDENCIALES -->
+                    <div id="step-2" class="step-hidden">
+                        <div class="form-group">
+                            <label for="usuario">{{ _('NOMBRE DE USUARIO') }}</label>
+                            <input type="text" id="usuario" name="usuario" placeholder="{{ _('Para iniciar sesión') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">{{ _('CONTRASEÑA') }}</label>
+                            <input type="password" id="password" name="password" placeholder="{{ _('Mínimo 6 caracteres') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">{{ _('REPETIR CONTRASEÑA') }}</label>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="{{ _('Confirma tu clave') }}">
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-auth shadow-sm" style="background: #6c757d; width: 40%;" onclick="prevStep()">
+                                {{ _('ATRÁS') }}
+                            </button>
+                            <button type="submit" class="btn-auth" style="width: 60%;">
+                                {{ _('REGISTRARME') }} <i class="bi bi-check-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="auth-footer">
+                    <p>{{ _('¿Ya tiene una cuenta?') }} <a href="{{ url_for('auth.login') }}">{{ _('Inicia sesión') }}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function nextStep() {
+            const cedula = document.getElementById('cedula').value;
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+
+            if(!cedula || !nombre || !apellido) {
+                alert("{{ _('Por favor completa tus datos personales antes de continuar.') }}");
+                return;
+            }
+
+            document.getElementById('step-1').classList.add('step-hidden');
+            document.getElementById('step-2').classList.remove('step-hidden');
+            document.getElementById('progress-fill').style.width = '100%';
+            document.getElementById('form-subtitle').innerText = '{{ _("Paso 2: Seguridad de la Cuenta") }}';
+        }
+
+        function prevStep() {
+            document.getElementById('step-2').classList.add('step-hidden');
+            document.getElementById('step-1').classList.remove('step-hidden');
+            document.getElementById('progress-fill').style.width = '50%';
+            document.getElementById('form-subtitle').innerText = '{{ _("Paso 1: Información Personal") }}';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+    <script>
+        // --- NPROGRESS ---
+        NProgress.configure({ showSpinner: false, speed: 500 });
+        NProgress.start();
+        window.onload = () => NProgress.done();
+
+        // --- DARK MODE LOGIC ---
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const icon = darkModeToggle.querySelector('i');
+
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            if (isDark) {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+            }
+        });
+
+        // --- SWEETALERT2 FLASH MESSAGES ---
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    Swal.fire({
+                        title: "{{ '¡Hecho!' if category == 'success' else 'Atención' }}",
+                        text: "{{ message }}",
+                        icon: "{{ 'success' if category == 'success' else ('error' if category == 'danger' or category == 'error' else 'info') }}",
+                        confirmButtonColor: '#d4af37',
+                        background: document.body.classList.contains('dark-mode') ? '#1e293b' : '#fff',
+                        color: document.body.classList.contains('dark-mode') ? '#fff' : '#111',
+                        timer: 3500,
+                        timerProgressBar: true
+                    });
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

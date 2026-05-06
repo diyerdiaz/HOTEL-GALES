@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: flask_hotel_app
+    # Mapeo del puerto 81 del host al puerto 81 del contenedor
+    ports:
+      - "81:81"
+    # Volúmenes para permitir el desarrollo en tiempo real (hot-reload)
+    volumes:
+      - .:/app
+    # Variables de entorno
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
+      - SECRET_KEY=una_clave_secreta_muy_segura_123
+      # Aquí podrías cambiar a una DB externa en el futuro
+      # - DATABASE_URL=postgresql://user:password@db:5432/hotel_db
+    restart: always
+
+# Si en el futuro deseas agregar una base de datos como PostgreSQL, 
+# puedes añadir otro servicio aquí llamado 'db'.

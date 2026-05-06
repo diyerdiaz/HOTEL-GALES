@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Gestión de Empleados{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="text-primary"><i class="bi bi-briefcase-fill"></i> Lista de Empleados</h5>
+    <button class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Nuevo Empleado
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Cargo</th>
+                <th>Salario</th>
+                <th>Fecha Ingreso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado.idEmpleado }}</td>
+                <td>{{ empleado.nombre }} {{ empleado.apellido }}</td>
+                <td>{{ empleado.cargo }}</td>
+                <td>${{ empleado.salario }}</td>
+                <td>{{ empleado.fechaIngreso }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning text-white"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No hay empleados registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

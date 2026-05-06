@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}{{ _('Gestión de Reservas') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <h2 class="mb-0"><i class="bi bi-calendar-week me-2"></i>{{ _('Control de Reservas') }}</h2>
+        {% if fecha_filtro %}
+            <span class="badge bg-primary px-3 py-2">{{ _('Filtrado') }}: {{ fecha_filtro }}</span>
+            <a href="{{ url_for('reservas.index') }}" class="btn btn-sm btn-outline-secondary" title="Quitar filtro">
+                <i class="bi bi-x-lg"></i> {{ _('Ver todas') }}
+            </a>
+        {% endif %}
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+        <form action="{{ url_for('reservas.index') }}" method="GET" class="d-flex gap-2">
+            <input type="date" name="fecha" class="form-control form-control-sm" value="{{ fecha_filtro or '' }}">
+            <button type="submit" class="btn btn-sm btn-dark">
+                <i class="bi bi-search"></i> {{ _('Filtrar por Fecha') }}
+            </button>
+        </form>
+        {% if current_user.rol == 'cliente' %}
+        <a href="{{ url_for('reservas.nueva') }}" class="btn btn-sm btn-hotel shadow-sm px-3">
+            <i class="bi bi-plus-lg"></i> {{ _('Nueva Reserva') }}
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for r in reservas %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 position-relative overflow-hidden" style="border-radius: 15px;">
+            <!-- Indicador de Estado Lateral -->
+            <div class="position-absolute top-0 start-0 h-100" style="width: 6px; background-color: {% if r.estadoReserva=='confirmada' %}#28a745{% elif r.estadoReserva=='pendiente' %}#ffc107{% elif r.estadoReserva=='cancelada' %}#dc3545{% else %}#6c757d{% endif %};"></div>
+            
+            <div class="card-body ps-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-light text-dark border">#{{ r.idReserva }}</span>
+                    <span class="badge 
+                        {% if r.estadoReserva=='confirmada' %}bg-success
+                        {% elif r.estadoReserva=='pendiente' %}bg-warning text-dark
+                        {% elif r.estadoReserva=='cancelada' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ r.estadoReserva|upper }}
+                    </span>
+                </div>
+                
+                <h5 class="card-title fw-bold mb-3">{{ _('Habitación') }} {{ r.habitacion.numeroHabitacion }}</h5>
+                
+                <div class="mb-3 text-muted">
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                        <span>{{ r.cliente.nombre }} {{ r.cliente.apellido }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span>{{ _('Entrada') }}: <b>{{ r.fechaEntrada }}</b></span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-x me-2"></i>
+                        <span>{{ _('Salida') }}: <b>{{ r.fechaSalida }}</b></span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalReserva{{ r.idReserva }}">
+                        <i class="bi bi-eye"></i> {{ _('Ver Detalles') }}
+                    </button>
+                    
+                    {% if current_user.rol == 'cliente' and r.estadoReserva in ['pendiente', 'confirmada'] %}
+                        <a href="{{ url_for('reservas.cancelar', id=r.idReserva) }}" 
+                           class="btn btn-sm btn-danger w-100" 
+                           onclick="return confirm('{{ _('¿Estás seguro de cancelar tu reserva?') }}')">
+                            <i class="bi bi-x-circle"></i> {{ _('Cancelar Reserva') }}
+                        </a>
+                    {% endif %}
+                    
+                    {% if current_user.rol != 'cliente' %}
+                    {% set is_locked = r.estadoReserva in ['finalizada', 'cancelada'] %}
+                    <form action="{{ url_for('reservas.cambiar_estado', id=r.idReserva) }}" method="POST" class="mt-2">
+                        <div class="input-group input-group-sm">
+                            <select name="estadoReserva" class="form-select border-primary fw-bold" 
+                                {% if current_user.rol == 'servicio_limpieza' or is_locked %}disabled{% endif %}>
+                                <option value="pendiente" {% if r.estadoReserva == 'pendiente' %}selected{% endif %}>{{ _('Pendiente') }}</option>
+                                <option value="confirmada" {% if r.estadoReserva == 'confirmada' %}selected{% endif %}>{{ _('Ocupada (Check-In)') }}</option>
+                                <option value="finalizada" {% if r.estadoReserva == 'finalizada' and r.habitacion.estadoHabitacion != 'limpieza' %}selected{% endif %}>{{ _('Finalizada (Hab. Disponible)') }}</option>
+                                <option value="limpieza" {% if r.estadoReserva == 'finalizada' and r.habitacion.estadoHabitacion == 'limpieza' %}selected{% endif %}>{{ _('Finalizada (Pasar a Limpieza)') }}</option>
+                                <option value="cancelada" {% if r.estadoReserva == 'cancelada' %}selected{% endif %}>{{ _('Cancelada') }}</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary" title="Actualizar" 
+                                {% if current_user.rol == 'servicio_limpieza' or is_locked %}disabled{% endif %}>
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALLES -->
+    <div class="modal fade" id="modalReserva{{ r.idReserva }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-dark text-white" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-info-circle me-2"></i>{{ _('Detalles de la Estadía') }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 70px; height: 70px;">
+                            <i class="bi bi-person-vcard text-primary fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0">{{ r.cliente.nombre }} {{ r.cliente.apellido }}</h4>
+                        <span class="text-muted small">C.C. {{ r.cliente.cedula }}</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <label class="text-muted small d-block">{{ _('Teléfono') }}</label>
+                                <span class="fw-bold">{{ r.cliente.telefono or _('No registrado') }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <label class="text-muted small d-block">{{ _('Habitación') }}</label>
+                                <span class="fw-bold">N° {{ r.habitacion.numeroHabitacion }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded-3">
+                                <label class="text-muted small d-block">{{ _('Correo Electrónico') }}</label>
+                                <span class="fw-bold text-primary">{{ r.cliente.email or _('No registrado') }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 border rounded-3 border-dashed">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted small">{{ _('Periodo') }}</div>
+                                        <span class="fw-bold">{{ r.fechaEntrada }} ➡️ {{ r.fechaSalida }}</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-muted small">{{ _('Personas') }}</div>
+                                        <span class="badge bg-dark">{{ r.cantidadPersonas or 1 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">{{ _('Cerrar') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 4rem;"></i>
+        <h4 class="text-muted">{{ _('No hay reservas registradas en este momento.') }}</h4>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

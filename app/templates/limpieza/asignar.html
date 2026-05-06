@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Asignar Tarea de Limpieza{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="content-card">
+                <div class="content-card-header bg-dark text-white p-3">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Nueva Orden de Limpieza</h5>
+                </div>
+                <div class="content-card-body p-4 bg-white shadow-sm rounded-bottom-4">
+                    <form method="post">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">1. Seleccionar Habitación</label>
+                            <select name="id_habitacion" class="form-select" required>
+                                <option value="">-- Elige una habitación --</option>
+                                {% for h in habitaciones %}
+                                <option value="{{ h.idHabitacion }}">
+                                    Habitación #{{ h.numeroHabitacion }} ({{ h.estadoHabitacion|title }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">2. Asignar a Personal</label>
+                            <select name="id_personal" class="form-select" required>
+                                <option value="">-- Elige a un trabajador --</option>
+                                {% for p in personal %}
+                                <option value="{{ p.id }}">
+                                    {{ p.usuario }} - {{ p.estado_limpieza|title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">3. Instrucciones e Indicaciones</label>
+                            <textarea name="instrucciones" class="form-control" rows="4" 
+                                      placeholder="Ej: Limpieza profunda, cambio de toallas, revisar minibar..." required></textarea>
+                            <div class="form-text mt-2 text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                El trabajador recibirá estas indicaciones en su panel de tareas.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-gold py-2 fw-bold">
+                                <i class="bi bi-check2-circle me-2"></i>Confirmar Asignación
+                            </button>
+                            <a href="{{ url_for('limpieza.mis_tareas') }}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-gold { background: #d4af37; color: #000; font-weight: 700; border: none; }
+.btn-gold:hover { background: #b8962d; color: #000; }
+.form-select, .form-control { border-radius: 10px; border: 1px solid #e0e0e0; }
+.form-select:focus, .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25); }
+</style>
+{% endblock %}

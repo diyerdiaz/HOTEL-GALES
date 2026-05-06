@@ -1,0 +1,156 @@
+{% extends "dashboard/base_authenticated.html" %}
+
+{% block title %}Gestión de Roles de Empleados{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="fw-bold text-dark mb-0">
+                <i class="bi bi-shield-lock-fill text-primary me-2"></i>Roles Definidos
+            </h1>
+            <button class="btn btn-success btn-lg shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                <i class="bi bi-plus-lg me-2"></i>Crear Rol
+            </button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 80px;">ID</th>
+                        <th class="py-3">Nombre del Rol</th>
+                        <th class="py-3">Descripción</th>
+                        <th class="text-end pe-4 py-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for rol in roles %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-muted">{{ rol.idRolEmpleado }}</td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
+                                {{ rol.nombreRol }}
+                            </span>
+                        </td>
+                        <td class="text-muted">{{ rol.descripcionRol or 'Sin descripción' }}</td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-sm btn-outline-warning rounded-pill px-3" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalEditar{{ rol.idRolEmpleado }}" 
+                                        title="Editar Rol">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalEliminar{{ rol.idRolEmpleado }}" 
+                                        title="Eliminar Rol">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-shield-slash display-4 d-block mb-3"></i>
+                            No hay roles definidos en el sistema.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_modals %}
+<!-- MODAL CREAR -->
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Crear Nuevo Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('rolempleados.crear') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Rol</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Recepcionista, Limpieza..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe las responsabilidades de este rol..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-lg me-1"></i>Guardar Rol
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for rol in roles %}
+<!-- MODAL EDITAR -->
+<div class="modal fade" id="modalEditar{{ rol.idRolEmpleado }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark"><i class="bi bi-pencil-square me-2"></i>Editar Rol: {{ rol.nombreRol }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('rolempleados.editar', id=rol.idRolEmpleado) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Rol</label>
+                        <input type="text" name="nombre" class="form-control" value="{{ rol.nombreRol }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3">{{ rol.descripcionRol }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning px-4">
+                        <i class="bi bi-save me-1"></i>Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal fade" id="modalEliminar{{ rol.idRolEmpleado }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Eliminar Rol</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-0">¿Estás seguro de que deseas eliminar el rol <strong>{{ rol.nombreRol }}</strong>?</p>
+                <small class="text-danger">Esta acción no se puede deshacer y fallará si hay empleados vinculados.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('rolempleados.eliminar', id=rol.idRolEmpleado) }}" method="POST">
+                    <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

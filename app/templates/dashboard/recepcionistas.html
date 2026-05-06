@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Gestión de Recepcionistas{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark fw-bold mb-0">
+            <i class="bi bi-person-badge text-gold me-2"></i>
+            Personal de Recepción
+        </h2>
+        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-outline-dark btn-dynamic">
+            <i class="bi bi-people me-2"></i>Gestionar Usuarios
+        </a>
+    </div>
+    
+    <!-- Barra de Búsqueda y Filtros -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 filter-card">
+        <div class="card-body p-3">
+            <form method="GET" action="{{ url_for('usuarios.historial_recepcionistas') }}" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                               placeholder="Buscar por nombre de usuario..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="bi bi-calendar-event text-muted"></i>
+                        </span>
+                        <input type="date" name="fecha" class="form-control border-start-0 ps-0" value="{{ fecha }}">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark-royal text-white w-100 rounded-3">
+                        <i class="bi bi-filter me-2"></i>Filtrar
+                    </button>
+                    {% if search or fecha %}
+                    <a href="{{ url_for('usuarios.historial_recepcionistas') }}" class="btn btn-outline-secondary rounded-3" title="Limpiar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for recepcionista in recepcionistas %}
+        {% set info = info_personal.get(recepcionista.cedula) %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-recepcionista">
+                <div class="card-header bg-dark-royal text-white p-3 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-gold text-dark px-3 rounded-pill">RECEPCIONISTA</span>
+                    <small class="text-light opacity-75">ID #{{ recepcionista.id }}</small>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="avatar-circle me-3 bg-light text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem; border: 2px solid #d4af37;">
+                            {{ recepcionista.usuario[0].upper() }}
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">{{ info.nombre if info else 'N/A' }} {{ info.apellido if info else '' }}</h5>
+                            <small class="text-muted">@{{ recepcionista.usuario }}</small>
+                        </div>
+                    </div>
+
+                    <div class="info-list mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small"><i class="bi bi-card-text me-1"></i> Cédula:</span>
+                            <span class="fw-bold small">{{ recepcionista.cedula or 'No registrada' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small"><i class="bi bi-envelope me-1"></i> Email:</span>
+                            <span class="fw-bold small text-truncate ms-2" style="max-width: 150px;">{{ info.email if info else 'N/A' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small"><i class="bi bi-calendar-check me-1"></i> Actividad:</span>
+                            <span class="badge bg-info-subtle text-info px-2">{{ recepcionista.reservas_atendidas|length }} Reservas</span>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('usuarios.ver_historial_recepcionista', id=recepcionista.id) }}" class="btn btn-gold w-100 py-2 rounded-3">
+                        <i class="bi bi-clock-history me-2"></i>Ver Historial de Trabajo
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card border-0 shadow-sm rounded-4 p-5 empty-state-card">
+                <i class="bi bi-search text-muted display-1 mb-4"></i>
+                <h4 class="fw-bold">
+                    {% if search or fecha %}
+                        No se encontraron recepcionistas para esta búsqueda
+                    {% else %}
+                        No hay recepcionistas registrados
+                    {% endif %}
+                </h4>
+                <p class="text-muted mb-4">
+                    {% if search or fecha %}
+                        Intenta ajustar los filtros o limpiar la búsqueda para ver otros resultados.
+                    {% else %}
+                        Puedes crear nuevos recepcionistas en el panel de gestión de usuarios para empezar a ver su actividad.
+                    {% endif %}
+                </p>
+                {% if search or fecha %}
+                    <div class="d-flex justify-content-center">
+                        <a href="{{ url_for('usuarios.historial_recepcionistas') }}" class="btn btn-dark-royal text-white rounded-pill px-5">
+                            <i class="bi bi-x-circle me-2"></i>Limpiar Filtros
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.bg-dark-royal { background-color: #0c1433; }
+.text-gold { color: #d4af37; }
+.bg-gold { background-color: #d4af37; }
+.btn-gold { background: #d4af37; color: #000; font-weight: 700; border: none; border-radius: 10px; }
+.btn-gold:hover { background: #b8962d; color: #000; }
+
+.card-recepcionista {
+    transition: all 0.3s ease;
+    border-bottom: 4px solid transparent !important;
+}
+
+.card-recepcionista:hover {
+    transform: translateY(-5px);
+    border-bottom: 4px solid #d4af37 !important;
+}
+
+.avatar-circle {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Botón Dinámico para Modo Oscuro/Claro */
+.btn-dynamic {
+    transition: all 0.3s ease;
+}
+
+.dark-mode .btn-dynamic {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+.dark-mode .btn-dynamic:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+</style>
+{% endblock %}

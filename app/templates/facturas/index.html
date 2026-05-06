@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}{{ _('Mis Facturas') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-receipt-cutoff me-2 text-gold"></i>
+            {% if current_user.rol == 'cliente' %}{{ _('Mis Facturas') }}{% else %}{{ _('Gestión de Facturación') }}{% endif %}
+        </h2>
+        <span class="badge bg-dark-royal text-gold px-3 py-2 rounded-pill">
+            {{ facturas|length }} {{ _('Registros Encontrados') }}
+        </span>
+    </div>
+
+    <!-- Barra de Búsqueda -->
+    {% if current_user.rol != 'cliente' %}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form action="{{ url_for('facturas.index') }}" method="GET" class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                           placeholder="{{ _('Buscar por nombre o apellido del cliente...') }}" 
+                           value="{{ request.args.get('search', '') }}">
+                </div>
+                <button type="submit" class="btn btn-dark-royal text-gold px-4">{{ _('Buscar') }}</button>
+                {% if request.args.get('search') %}
+                    <a href="{{ url_for('facturas.index') }}" class="btn btn-outline-secondary">{{ _('Limpiar') }}</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        {% for f in facturas %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="invoice-card">
+                <div class="invoice-card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="invoice-number">#{{ "%05d" | format(f.idFactura) }}</span>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="mt-2 text-white-50 small">
+                        <i class="bi bi-calendar3 me-1"></i> {{ f.fechaFactura.strftime('%d %b, %Y') }}
+                    </div>
+                </div>
+                <div class="invoice-card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small text-uppercase fw-bold">{{ _('Cliente') }}</label>
+                        <div class="client-name">{{ f.reserva.cliente.nombre }} {{ f.reserva.cliente.apellido }}</div>
+                        <div class="client-id text-muted">{{ f.reserva.cliente.cedula }}</div>
+                    </div>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold">{{ _('Habitación') }}</label>
+                            <div class="room-num fw-bold">#{{ f.reserva.habitacion.numeroHabitacion }}</div>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold">{{ _('Reserva') }}</label>
+                            <div class="reserva-id fw-bold">#{{ f.idReserva }}</div>
+                        </div>
+                    </div>
+
+                    <div class="price-section d-flex justify-content-between align-items-center p-3 rounded-3">
+                        <span class="text-muted fw-bold">{{ _('TOTAL') }}</span>
+                        <span class="total-amount">{{ f.totalFactura | cop }}</span>
+                    </div>
+                </div>
+                <div class="invoice-card-footer p-3">
+                    <a href="{{ url_for('facturas.ver', id=f.idFactura) }}" class="btn btn-gold w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-eye-fill"></i> {{ _('Ver Detalle') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="empty-state text-center py-5 shadow-sm rounded-4">
+                <i class="bi bi-search text-muted display-1"></i>
+                <h4 class="mt-3 text-dark">{{ _('No se encontraron resultados') }}</h4>
+                <p class="text-muted">
+                    {% if request.args.get('search') %}
+                        {{ _('No existen facturas asociadas a la búsqueda') }} "{{ request.args.get('search') }}".
+                    {% else %}
+                        {{ _('Cuando realices una reserva, tu factura aparecerá aquí.') }}
+                    {% endif %}
+                </p>
+                {% if request.args.get('search') %}
+                    <a href="{{ url_for('facturas.index') }}" class="btn btn-outline-secondary mt-2">{{ _('Ver todas las facturas') }}</a>
+                {% else %}
+                    <a href="{{ url_for('reservas.nueva') }}" class="btn btn-gold mt-2">{{ _('Reservar Ahora') }}</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+:root {
+    --dark-royal: #0c1433;
+    --text-gold: #d4af37;
+}
+
+.text-gold { color: var(--text-gold); }
+.bg-dark-royal { background-color: var(--dark-royal); }
+.btn-dark-royal { background-color: var(--dark-royal); }
+.btn-dark-royal:hover { background-color: #1a2a5e; }
+</style>
+{% endblock %}

@@ -1,0 +1,1711 @@
+/* ============================================
+   HOTEL GALES - Sistema de Gestión
+   Estilos globales + Sidebar Vertical
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --hotel-gold: #d4af37;
+  --hotel-gold-light: #f1c40f;
+  --dark-royal: #0c1433;
+  --dark-sidebar: #111827;
+  --sidebar-hover: #1f2d4e;
+  --sidebar-active: #d4af37;
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 70px;
+  --topbar-height: 60px;
+  --content-bg: #f0f2f7;
+  --card-radius: 14px;
+  --transition: all 0.3s ease;
+}
+
+/* ── MODO OSCURO (VARIABLES) ── */
+body.dark-mode {
+  --content-bg: #0f172a; /* Deep Navy Slate */
+  --dark-royal: #1e293b;
+  --dark-sidebar: #020617;
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --topbar-bg: #1e293b;
+  --hotel-gold: #fbbf24; /* Brighter gold for dark mode */
+}
+
+body {
+  --card-bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --topbar-bg: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--content-bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── LOGIN PAGE ── */
+
+body.login-page {
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+              url('');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.login-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 440px;
+  color: white;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  transition: var(--transition);
+}
+
+.login-card:hover { transform: translateY(-4px); }
+
+.login-header h2 {
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--hotel-gold);
+}
+
+.hotel-logo { font-size: 3.5rem; color: var(--hotel-gold); }
+
+.form-control-custom {
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+}
+
+.form-control-custom::placeholder { color: rgba(255,255,255,0.5); }
+
+.btn-hotel {
+  background: var(--hotel-gold);
+  border: none;
+  color: #111;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 10px;
+  padding: 12px;
+  transition: var(--transition);
+}
+
+.btn-hotel:hover {
+  background: var(--hotel-gold-light);
+  box-shadow: 0 0 24px rgba(212,175,55,0.5);
+  transform: scale(1.02);
+  color: #111;
+}
+
+/* ── SIDEBAR LAYOUT ── */
+body.sidebar-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--dark-sidebar);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 1000;
+  transition: var(--transition);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar.collapsed { width: var(--sidebar-collapsed); }
+.sidebar.collapsed .brand-text,
+.sidebar.collapsed span,
+.sidebar.collapsed .sidebar-section,
+.sidebar.collapsed .arrow { display: none; }
+
+/* Brand */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  padding: 1.4rem 1.2rem;
+  color: var(--hotel-gold);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-decoration: none;
+}
+
+/* Nav lista */
+.sidebar-nav {
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  flex: 1;
+}
+
+.sidebar-section {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  padding: 1rem 1.4rem 0.3rem;
+  text-transform: uppercase;
+}
+
+/* Links del sidebar */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.72rem 1.4rem;
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  transition: var(--transition);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: var(--sidebar-hover);
+  color: white;
+  border-left-color: var(--hotel-gold);
+}
+
+.sidebar-link.active,
+.sidebar-link:focus {
+  background: rgba(212,175,55,0.15);
+  color: var(--hotel-gold);
+  border-left-color: var(--hotel-gold);
+  font-weight: 600;
+}
+
+.sidebar-link.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.sidebar-link i { font-size: 1.05rem; min-width: 20px; text-align: center; }
+
+/* Submenú */
+.sidebar-submenu {
+  list-style: none;
+  padding-left: 0;
+  background: rgba(0,0,0,0.2);
+}
+
+.sidebar-submenu .sidebar-link {
+  padding-left: 3.2rem;
+  font-size: 0.85rem;
+}
+
+/* Footer sidebar */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: auto;
+}
+
+.sidebar-footer .sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.72rem 1.4rem;
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.sidebar-footer .sidebar-link i {
+  font-size: 1.05rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: var(--transition);
+}
+
+/* Ajustar contenido cuando sidebar está colapsado */
+.sidebar.collapsed ~ .main-content {
+  margin-left: var(--sidebar-collapsed);
+}
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-height);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Content área */
+.content-area { padding-top: 1.5rem; }
+
+.content-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.content-card-header {
+  background: linear-gradient(135deg, var(--dark-royal) 0%, #1f2d70 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-card-body { padding: 1.5rem; }
+
+/* Badge dorado */
+.bg-gold { background-color: var(--hotel-gold) !important; }
+
+/* Tablas mejoradas */
+.table thead th {
+  background: var(--dark-royal);
+  color: white;
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: none;
+  padding: 0.85rem 1rem;
+}
+
+.table tbody tr:hover { background: #f8f9ff; }
+
+/* Cards de habitaciones */
+.room-card { border-radius: 12px; transition: var(--transition); }
+.room-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+/* ── RESPONSIVE ── */
+/* Botón Dorado Premium */
+.btn-gold {
+  background: var(--hotel-gold);
+  color: #111;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  transition: var(--transition);
+}
+
+.btn-gold:hover {
+  background: var(--hotel-gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+  color: #111;
+}
+
+.btn-outline-gold {
+  background: transparent;
+  color: var(--hotel-gold);
+  border: 1px solid var(--hotel-gold);
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--hotel-gold-light);
+}
+
+/* --- Premium Language Selector (Dropdown Version) --- */
+.lang-dropdown {
+  position: relative;
+}
+
+.btn-premium-lang {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color);
+  padding: 10px 22px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--dark-royal);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+.btn-premium-lang:hover {
+  background: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.18);
+  border-color: var(--hotel-gold);
+}
+
+.btn-premium-lang i.bi-globe2 {
+  color: var(--hotel-gold);
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.2));
+}
+
+.btn-premium-lang .chevron {
+  font-size: 0.8rem;
+  transition: transform 0.4s ease;
+  color: #999;
+}
+
+.dropdown-toggle::after {
+  display: none !important; /* Remove default bootstrap arrow */
+}
+
+/* Dropdown Menu Custom */
+.lang-dropdown-menu {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.15) !important;
+  border-radius: 20px !important;
+  padding: 12px !important;
+  margin-top: 15px !important;
+  min-width: 210px !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+  border-top: 4px solid var(--hotel-gold) !important;
+}
+
+.lang-dropdown-menu::before {
+  content: 'Idioma / Language';
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #aaa;
+  padding: 8px 16px;
+  letter-spacing: 1px;
+}
+
+.lang-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+  color: #444 !important;
+  transition: all 0.2s ease !important;
+}
+
+.lang-dropdown-item:hover {
+  background: rgba(212, 175, 55, 0.08) !important;
+  color: var(--hotel-gold) !important;
+  transform: translateX(5px);
+}
+
+.lang-dropdown-item.active {
+  background: linear-gradient(135deg, var(--hotel-gold) 0%, #aa8c2c 100%) !important;
+  color: white !important;
+}
+
+/* Animations */
+.animate-dropdown {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.slideUp {
+  animation-name: slideUp;
+}
+
+/* Visibility on Login Page */
+.login-page .btn-premium-lang {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.login-page .btn-premium-lang:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.login-page .btn-premium-lang i {
+  color: var(--hotel-gold-light);
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+}
+
+/* ── ESTILOS EXTRAÍDOS DE HTML ── */
+
+/* Usuarios */
+.table-hover tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.badge {
+    font-size: 0.85rem;
+}
+
+/* Menu Dashboard */
+.welcome-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.welcome-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.welcome-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.role-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.3);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.info-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+
+body.dark-mode .info-card:hover,
+body.dark-mode .content-card:hover,
+body.dark-mode .invoice-card:hover {
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.15); /* Gold glow */
+    border-color: var(--hotel-gold);
+}
+
+.info-card .card-header {
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(0,0,0,0.02);
+    padding: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+body.dark-mode .info-card .card-header {
+    background: rgba(255,255,255,0.03);
+}
+
+.info-card .card-body {
+    padding: 1.5rem;
+}
+
+.info-card p {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-card strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.actions-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: white;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.action-btn i {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-btn.admin {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.action-btn.receptionist {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.action-btn.maid {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.action-btn.accountant {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.permissions-section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.3s;
+}
+
+.permissions-section h5 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.permission-item {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.permission-item i {
+    color: #28a745;
+}
+
+/* Reportes */
+.avatar-circle-sm {
+    width: 38px;
+    height: 38px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #495057;
+}
+
+.bg-info-subtle { background-color: #e0f2fe !important; }
+.text-info { color: #0369a1 !important; }
+.border-info-subtle { border-color: #bae6fd !important; }
+
+.progress-vertical-container {
+    width: 40px;
+    height: 180px;
+    background: #f1f3f5;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+    border: 1px solid #dee2e6;
+}
+.progress-vertical-fill {
+    width: 100%;
+    background: linear-gradient(to top, var(--dark-royal), var(--hotel-gold));
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: height 1s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.progress-label {
+    font-size: 0.65rem;
+    color: #fff;
+    font-weight: bold;
+    transform: rotate(-90deg);
+    white-space: nowrap;
+}
+
+@media print {
+    .sidebar, .topbar, .btn, .badge { display: none !important; }
+    .main-content { margin: 0 !important; padding: 0 !important; }
+}
+
+/* ── FACTURAS (INDEX/CARDS) ── */
+.invoice-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.invoice-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--hotel-gold);
+}
+
+.invoice-card-header {
+    background: linear-gradient(135deg, var(--dark-royal) 0%, #1a2a5e 100%);
+    padding: 2.2rem 1.8rem; /* Aumentado padding */
+    position: relative;
+}
+
+.invoice-number {
+    color: var(--hotel-gold);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem; /* Aumentado tamaño de letra */
+    letter-spacing: 1.5px; /* Más espaciado */
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4ade80;
+}
+
+.invoice-card-body {
+    padding: 1.8rem; /* Más espacio interno */
+}
+
+.invoice-card-body label {
+    display: block;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.8px; /* Más espaciado en etiquetas */
+    font-size: 0.75rem;
+}
+
+.client-name {
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 1.15rem; /* Aumentado tamaño */
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
+}
+
+.client-id {
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.price-section {
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    margin-top: 1rem;
+}
+
+.total-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--dark-royal);
+}
+
+.empty-state {
+    border: 2px dashed #e2e8f0;
+}
+
+/* ── FACTURA (VER/DETALLE) ── */
+.invoice-container {
+    background: #fff !important;
+    border-radius: 0;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 50px rgba(0,0,0,0.1) !important;
+    border: 1px solid #eee;
+}
+
+@media (min-width: 992px) {
+    .invoice-container {
+        max-width: 850px;
+        margin: 2rem auto;
+    }
+}
+
+.invoice-header {
+    background: #fff;
+    color: var(--dark-royal);
+    border-bottom: 2px solid var(--hotel-gold);
+}
+
+.hotel-name {
+    letter-spacing: 2px;
+    font-weight: 800;
+    color: var(--dark-royal);
+    font-size: 2.5rem;
+}
+
+.hotel-info {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+.invoice-badge {
+    background: var(--dark-royal);
+    color: var(--hotel-gold);
+    padding: 8px 20px;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.invoice-header h4 {
+    color: var(--dark-royal) !important;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.invoice-header p {
+    color: #888 !important;
+    margin-bottom: 0.2rem;
+}
+
+.invoice-body {
+    padding: 3rem !important;
+}
+
+.invoice-table thead th {
+    color: #6c757d;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+}
+
+.invoice-table tbody td {
+    padding: 1.5rem 0;
+}
+
+.invoice-total-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    padding: 1.5rem !important;
+}
+
+/* ── MICRO-ANIMACIONES PREMIUM (LUJO) ── */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-area > *:not(.modal),
+.content-card, 
+.info-card, 
+.invoice-card,
+.invoice-container,
+.table-responsive {
+    opacity: 0;
+    animation: fadeInSlideUp 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Retraso escalonado para tarjetas dentro de grids */
+.row > div:nth-child(1) .info-card, .row > div:nth-child(1) .invoice-card, .row > div:nth-child(1) .staff-card { animation-delay: 0.1s; }
+.row > div:nth-child(2) .info-card, .row > div:nth-child(2) .invoice-card, .row > div:nth-child(2) .staff-card { animation-delay: 0.2s; }
+.row > div:nth-child(3) .info-card, .row > div:nth-child(3) .invoice-card, .row > div:nth-child(3) .staff-card { animation-delay: 0.3s; }
+.row > div:nth-child(4) .info-card, .row > div:nth-child(4) .invoice-card, .row > div:nth-child(4) .staff-card { animation-delay: 0.4s; }
+
+/* ── MODAL PREMIUM DESIGN & Z-INDEX FIX ── */
+.modal { z-index: 1060 !important; }
+.modal-backdrop { z-index: 1055 !important; }
+.modal-dialog { z-index: 1065 !important; }
+
+.modal-content {
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+    overflow: hidden;
+    background: #fff;
+    animation: modalSlideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+body.dark-mode .modal-content {
+    background: #1e293b;
+    border-color: rgba(255,255,255,0.1);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--dark-royal) 0%, #1a2a5e 100%);
+    color: var(--hotel-gold);
+    border-bottom: 3px solid var(--hotel-gold);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.8;
+    transition: transform 0.2s;
+}
+
+.modal-header .btn-close:hover {
+    transform: rotate(90deg);
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: none;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── PERSONAL DE LIMPIEZA - STAFF CARDS ── */
+.bg-dark-royal { background-color: var(--dark-royal) !important; }
+.text-gold { color: var(--hotel-gold) !important; }
+
+.staff-card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    animation: fadeInSlideUp 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.staff-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.13);
+    border-color: var(--hotel-gold);
+}
+
+.staff-card-header {
+    background: linear-gradient(135deg, var(--dark-royal) 0%, #1a2a5e 100%);
+    color: white;
+    border-bottom: 3px solid var(--hotel-gold);
+    padding: 1rem;
+}
+
+.staff-card-header span {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.staff-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.staff-card-footer {
+    background: rgba(0,0,0,0.015);
+    padding: 1rem;
+}
+
+body.dark-mode .staff-card-footer { background: rgba(255,255,255,0.04); }
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.status-dot.bg-success { box-shadow: 0 0 8px #28a745; background-color: #28a745; }
+.status-dot.bg-danger  { box-shadow: 0 0 8px #dc3545; background-color: #dc3545; }
+
+/* Staff info list */
+.staff-info-list {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .staff-card { background: var(--card-bg); border-color: var(--border-color); }
+    background: var(--card-bg);
+}
+
+body.dark-mode .staff-card-body {
+    background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,255,255,0.02) 100%);
+}
+
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    margin-top: 1rem;
+}
+
+.total-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--dark-royal);
+}
+
+.empty-state {
+    border: 2px dashed #e2e8f0;
+}
+
+/* ── FACTURA (VER/DETALLE) ── */
+.invoice-container {
+    background: var(--card-bg) !important;
+    border-radius: 0;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 50px rgba(0,0,0,0.1) !important;
+    border: 1px solid var(--border-color);
+}
+
+@media (min-width: 992px) {
+    .invoice-container {
+        max-width: 850px;
+        margin: 2rem auto;
+    }
+}
+
+.invoice-header {
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-bottom: 2px solid var(--hotel-gold);
+}
+
+.hotel-name {
+    letter-spacing: 2px;
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 2.5rem;
+}
+
+.hotel-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.invoice-badge {
+    background: var(--dark-royal);
+    color: var(--hotel-gold);
+    padding: 8px 20px;
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.invoice-header h4 {
+    color: var(--text-main) !important;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.invoice-header p {
+    color: var(--text-muted) !important;
+    margin-bottom: 0.2rem;
+}
+
+.invoice-body {
+    padding: 3rem !important;
+}
+
+.invoice-table thead th {
+    color: #6c757d;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+}
+
+.invoice-table tbody td {
+    padding: 1.5rem 0;
+}
+
+.invoice-total-card {
+    background: rgba(0,0,0,0.03);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem !important;
+}
+
+/* ── MICRO-ANIMACIONES PREMIUM (LUJO) ── */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-area > *,
+.content-card, 
+.info-card, 
+.invoice-card,
+.invoice-container,
+.table-responsive {
+    opacity: 0;
+    animation: fadeInSlideUp 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Retraso escalonado para tarjetas dentro de grids */
+.row > div:nth-child(1) .info-card, .row > div:nth-child(1) .invoice-card, .row > div:nth-child(1) .staff-card { animation-delay: 0.1s; }
+.row > div:nth-child(2) .info-card, .row > div:nth-child(2) .invoice-card, .row > div:nth-child(2) .staff-card { animation-delay: 0.2s; }
+.row > div:nth-child(3) .info-card, .row > div:nth-child(3) .invoice-card, .row > div:nth-child(3) .staff-card { animation-delay: 0.3s; }
+.row > div:nth-child(4) .info-card, .row > div:nth-child(4) .invoice-card, .row > div:nth-child(4) .staff-card { animation-delay: 0.4s; }
+
+/* ── STAFF CARDS (CARNETS DE PERSONAL) ── */
+.staff-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    animation: fadeInSlideUp 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.staff-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    border-color: var(--hotel-gold);
+}
+
+.staff-card-header {
+    background: rgba(0,0,0,0.02);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.staff-card-body {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfcfc 100%);
+    flex-grow: 1;
+}
+
+.staff-card-footer {
+    background: rgba(0,0,0,0.015);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+.status-dot.bg-success {
+    box-shadow: 0 0 8px #28a745;
+}
+
+.status-dot.bg-danger {
+    box-shadow: 0 0 8px #dc3545;
+}
+
+.staff-info-list {
+    background: rgba(0,0,0,0.02);
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px dashed var(--border-color);
+}
+
+/* Dark mode overrides for staff-card */
+body.dark-mode .staff-card {
+    background: var(--card-bg);
+}
+
+body.dark-mode .staff-card-body {
+    background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,255,255,0.02) 100%);
+}
+
+body.dark-mode .staff-card-header,
+body.dark-mode .staff-info-list {
+    background: rgba(255,255,255,0.03);
+}
+
+body.dark-mode .staff-card-footer {
+    background: rgba(255,255,255,0.02);
+}
+
+/* Corrección de colores de texto dinámicos para modo oscuro/claro */
+.staff-card {
+    color: var(--text-main);
+}
+
+.staff-card .text-muted {
+    color: var(--text-muted) !important;
+}
+
+.staff-card h5, .staff-card span.fw-bold {
+    color: var(--text-main);
+}
+
+/* Corrección Modo Oscuro para Cabecera (Botón de Idioma y Menú Hamburguesa) */
+body.dark-mode .btn-premium-lang {
+    color: var(--text-main);
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn-premium-lang:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--hotel-gold);
+}
+
+body.dark-mode .lang-dropdown-menu {
+    background: var(--card-bg) !important;
+    border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+body.dark-mode .lang-dropdown-item {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .lang-dropdown-item:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    color: var(--hotel-gold) !important;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: var(--text-main);
+    border-color: transparent;
+}
+body.dark-mode .btn-outline-secondary:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+/* =========================================================
+   GLOBAL DARK MODE OVERRIDES (BOOTSTRAP FIXES)
+   ========================================================= */
+
+/* Fondos Blancos/Claros genéricos */
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+    background-color: var(--card-bg) !important;
+}
+
+/* Textos oscuros genéricos */
+body.dark-mode .text-dark {
+    color: var(--text-main) !important;
+}
+
+/* Tablas */
+body.dark-mode .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    color: var(--text-main);
+}
+
+body.dark-mode .table-light {
+    --bs-table-bg: rgba(255, 255, 255, 0.03) !important;
+    --bs-table-color: var(--text-main) !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .table-light th,
+body.dark-mode .table-light td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color);
+}
+
+body.dark-mode .table th,
+body.dark-mode .table td {
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover td,
+body.dark-mode .table-hover tbody tr:hover th {
+    background-color: transparent !important;
+    color: var(--hotel-gold) !important;
+}
+
+/* Paginación */
+body.dark-mode .pagination .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+    background-color: var(--hotel-gold);
+    border-color: var(--hotel-gold);
+    color: #111;
+}
+
+body.dark-mode .pagination .page-item.disabled .page-link {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Modales */
+body.dark-mode .modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Formularios y Selects */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--hotel-gold) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25) !important;
+}
+
+body.dark-mode .input-group-text {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   DARK MODE - BOTÓN DE MENÚ (3 LÍNEAS) EN TOPBAR
+   ========================================================= */
+body.dark-mode #sidebarToggle {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: var(--text-main) !important;
+}
+body.dark-mode #sidebarToggle:hover {
+    background: rgba(255,255,255,0.07) !important;
+}
+
+/* =========================================================
+   DARK MODE - CARDS BOOTSTRAP GENÉRICAS
+   ========================================================= */
+body.dark-mode .card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .card-header {
+    background-color: rgba(255,255,255,0.04) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .card-body {
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .card-footer {
+    background-color: rgba(255,255,255,0.03) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* =========================================================
+   DARK MODE - TEXTOS Y LABELS
+   ========================================================= */
+body.dark-mode label.form-label {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .form-text {
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode p,
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+    color: var(--text-main);
+}
+
+body.dark-mode strong {
+    color: var(--text-main);
+}
+
+body.dark-mode small {
+    color: var(--text-muted);
+}
+
+body.dark-mode hr {
+    border-color: var(--border-color);
+}
+
+/* Textos inline hardcodeados en modales de clientes */
+body.dark-mode .profile-value {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .profile-label {
+    color: var(--text-muted) !important;
+}
+
+/* =========================================================
+   DARK MODE - ALERTAS
+   ========================================================= */
+body.dark-mode .alert-warning {
+    background-color: rgba(255,193,7,0.15) !important;
+    border-color: rgba(255,193,7,0.3) !important;
+    color: #ffc107 !important;
+}
+
+/* =========================================================
+   DARK MODE - FILA RESALTADA EN TABLAS (bg-light en <tr>)
+   ========================================================= */
+body.dark-mode tr.bg-light,
+body.dark-mode tr.bg-light td {
+    background-color: rgba(255,255,255,0.04) !important;
+    color: var(--text-main) !important;
+}
+
+/* =========================================================
+   DARK MODE - SOBRESCRITURA GLOBAL DE TODOS LOS TEXTOS
+   Fuerza que CUALQUIER texto oscuro se vuelva blanco/claro
+   ========================================================= */
+
+/* Fuerza todos los elementos dentro del contenido principal */
+body.dark-mode .main-content,
+body.dark-mode .content-area,
+body.dark-mode .container-fluid {
+    color: var(--text-main);
+}
+
+/* Clases de texto Bootstrap que fuerzan colores oscuros */
+body.dark-mode .text-dark,
+body.dark-mode .text-black,
+body.dark-mode .text-body {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .text-muted,
+body.dark-mode .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+/* Cualquier span, div, td, th, li, a sin color propio */
+body.dark-mode .card span:not(.badge),
+body.dark-mode .card div:not(.avatar-circle):not(.status-dot),
+body.dark-mode .card td,
+body.dark-mode .card th,
+body.dark-mode .card li,
+body.dark-mode .card p,
+body.dark-mode .card label,
+body.dark-mode .card small,
+body.dark-mode .card strong,
+body.dark-mode .card h1, body.dark-mode .card h2,
+body.dark-mode .card h3, body.dark-mode .card h4,
+body.dark-mode .card h5, body.dark-mode .card h6 {
+    color: var(--text-main);
+}
+
+/* Tablas globales */
+body.dark-mode .table span:not(.badge),
+body.dark-mode .table div,
+body.dark-mode .table td,
+body.dark-mode .table th,
+body.dark-mode .table small,
+body.dark-mode .table strong {
+    color: var(--text-main);
+}
+
+/* Sobrescribir color inline usando el selector de atributo */
+body.dark-mode [style*="color: #"],
+body.dark-mode [style*="color:#"] {
+    color: var(--text-main) !important;
+}
+
+/* content-card y content-card-body */
+body.dark-mode .content-card-body,
+body.dark-mode .content-card-body * {
+    color: var(--text-main);
+}
+
+/* Inputs y selects placeholder */
+body.dark-mode .form-control::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+/* Permisos section */
+body.dark-mode .permissions-section,
+body.dark-mode .permissions-section * {
+    color: var(--text-main);
+}
+
+/* =========================================================
+   DARK MODE - FACTURAS (INDEX - TARJETAS VISTA PREVIA)
+   ========================================================= */
+body.dark-mode .invoice-card {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .invoice-card-body {
+    background: transparent !important;
+}
+
+body.dark-mode .invoice-card-body .client-name {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .invoice-card-body .client-id,
+body.dark-mode .invoice-card-body label {
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode .invoice-card-body .room-num,
+body.dark-mode .invoice-card-body .reserva-id {
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .price-section {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .total-amount {
+    color: var(--hotel-gold) !important;
+}
+
+body.dark-mode .invoice-card-footer {
+    background: rgba(255,255,255,0.02) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .empty-state {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* =========================================================
+   DARK MODE - FACTURAS (VER DETALLE)
+   ========================================================= */
+body.dark-mode .invoice-container {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: 0 0 50px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode .invoice-header {
+    background: rgba(255,255,255,0.02) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .hotel-name {
+    color: var(--hotel-gold) !important;
+}
+
+body.dark-mode .hotel-info {
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode .invoice-body {
+    background: transparent !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .invoice-body *:not(.badge) {
+    color: var(--text-main);
+}
+
+body.dark-mode .invoice-body .text-muted,
+body.dark-mode .invoice-body small {
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode .invoice-total-card {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .invoice-footer {
+    background: rgba(255,255,255,0.02) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .invoice-table th,
+body.dark-mode .invoice-table td {
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Dark Mode - Filtros y Form Controls */
+body.dark-mode .filter-card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .form-control {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--hotel-gold) !important;
+    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+}
+
+body.dark-mode .input-group-text {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode .empty-state-card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+ / *   F i x   p a r a   e v i t a r   q u e   e l   f o n d o   o s c u r o   ( b a c k d r o p )   c u b r a   e l   m o d a l   * / 
+ . m o d a l - b a c k d r o p   { 
+         z - i n d e x :   1 0 4 0   ! i m p o r t a n t ; 
+ } 
+ . m o d a l   { 
+         z - i n d e x :   1 0 5 0   ! i m p o r t a n t ; 
+ } 
+  
+ 

@@ -1,0 +1,314 @@
+{% extends "dashboard/base_authenticated.html" %}
+
+{% block title %}{{ _('Hotel - Inicio') }}{% endblock %}
+
+{% block content %}
+
+<div class="welcome-header">
+    <h1>{{ _('¡Bienvenido,') }} {{ current_user.usuario }}!</h1>
+    <p>{{ _('Sistema de Gestión del Hotel') }}</p>
+    <div class="role-badge">
+        <i class="bi bi-shield-check"></i> {{ current_user.rol|upper }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="info-card">
+            <div class="card-header">
+                <i class="bi bi-person-circle" style="font-size: 1.2rem;"></i>
+                <span>{{ _('Perfil') }}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>{{ _('Usuario') }}:</strong> {{ current_user.usuario }}</p>
+                <p><strong>{{ _('Rol') }}:</strong> {{ current_user.rol|title }}</p>
+                <p><strong>{{ _('Miembro desde') }}:</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="info-card">
+            <div class="card-header">
+                <i class="bi bi-lightning-fill" style="font-size: 1.2rem;"></i>
+                <span>{{ _('Acciones Rápidas') }}</span>
+            </div>
+            <div class="card-body">
+                <div class="actions-section">
+                    <!-- BOTONES PARA ADMINISTRADOR -->
+                    {% if current_user.es_administrador() %}
+                        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="action-btn admin" title="Gestionar todos los usuarios del sistema">
+                            <i class="bi bi-people-fill"></i>
+                            <span>{{ _('Usuarios') }}</span>
+                        </a>
+                        <a href="{{ url_for('usuarios.historial_recepcionistas') }}" class="action-btn admin" title="Ver historial de trabajo de recepcionistas">
+                            <i class="bi bi-clock-history"></i>
+                            <span>{{ _('Historial Recepción') }}</span>
+                        </a>
+                        <a href="{{ url_for('rolempleados.index') }}" class="action-btn admin" title="Asignar roles y permisos">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>{{ _('Roles') }}</span>
+                        </a>
+                    {% endif %}
+
+                    <!-- BOTONES PARA RECEPCIONISTA -->
+                    {% if current_user.rol == 'recepcionista' %}
+                        <a href="{{ url_for('reservas.index') }}" class="action-btn receptionist" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);" title="Verificar clientes en lista y realizar Check-in">
+                            <i class="bi bi-person-check-fill"></i>
+                            <span>{{ _('Verificar Lista') }}</span>
+                        </a>
+                        <a href="{{ url_for('habitaciones.index') }}" class="action-btn maid" title="Cambiar estados a Ocupada/Mantenimiento">
+                            <i class="bi bi-door-open-fill"></i>
+                            <span>{{ _('Estado Habitaciones') }}</span>
+                        </a>
+                        <a href="{{ url_for('limpieza.mis_tareas') }}" class="action-btn maid" title="Asignar y ver tareas de limpieza">
+                            <i class="bi bi-stars"></i>
+                            <span>{{ _('Limpieza') }}</span>
+                        </a>
+                    {% else %}
+                        {% if current_user.tiene_permisos('ver_reservas') %}
+                            <a href="{{ url_for('reservas.index') }}" class="action-btn receptionist" title="Ver y gestionar reservas">
+                                <i class="bi bi-calendar3"></i>
+                                <span>{{ _('Reservas') }}</span>
+                            </a>
+                        {% endif %}
+
+                        {% if current_user.tiene_permisos('ver_huespedes') %}
+                            <a href="{{ url_for('clientes.index') }}" class="action-btn receptionist" title="Gestionar información de huéspedes">
+                                <i class="bi bi-person-badge"></i>
+                                <span>{{ _('Huéspedes') }}</span>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- BOTONES PARA CONTADOR -->
+                    {% if current_user.tiene_permisos('ver_facturacion') %}
+                        <a href="{{ url_for('facturas.index') }}" class="action-btn accountant" title="Gestionar facturación">
+                            <i class="bi bi-receipt"></i>
+                            <span>{{ _('Facturación') }}</span>
+                        </a>
+                    {% endif %}
+
+                    {% if current_user.tiene_permisos('ver_reportes') %}
+                        <a href="{{ url_for('reportes.index') }}" class="action-btn accountant" title="Ver reportes del sistema">
+                            <i class="bi bi-graph-up"></i>
+                            <span>{{ _('Reportes') }}</span>
+                        </a>
+                    {% endif %}
+
+                    <!-- BOTONES PARA CAMARERO -->
+                    {% if current_user.rol == 'servicio_limpieza' %}
+                        <a href="{{ url_for('limpieza.mis_tareas', filtro='pendientes') }}" class="action-btn maid" title="Ver tareas pendientes">
+                            <i class="bi bi-door-open-fill"></i>
+                            <span>{{ _('Piezas por Limpiar') }}</span>
+                        </a>
+                        <a href="{{ url_for('limpieza.mis_tareas', filtro='completadas') }}" class="action-btn maid" title="Ver historial de tareas">
+                            <i class="bi bi-clock-history"></i>
+                            <span>{{ _('Historial Limpiezas') }}</span>
+                        </a>
+                    {% elif current_user.tiene_permisos('ver_habitaciones') %}
+                        <a href="{{ url_for('habitaciones.index') }}" class="action-btn maid" title="Ver estado de habitaciones">
+                            <i class="bi bi-door-closed"></i>
+                            <span>{{ _('Habitaciones') }}</span>
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SECCIÓN DE GRÁFICAS (SOLO PARA STAFF) ── -->
+{% if current_user.rol != 'cliente' and datos_graficas %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="info-card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart-fill text-gold" style="font-size: 1.2rem;"></i>
+                <span class="fw-bold">{{ _('Estado de Habitaciones') }}</span>
+            </div>
+            <div class="card-body d-flex justify-content-center">
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="chartHabitaciones"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="info-card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-fill text-gold" style="font-size: 1.2rem;"></i>
+                <span class="fw-bold">{{ _('Resumen de Reservas') }}</span>
+            </div>
+            <div class="card-body d-flex justify-content-center">
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="chartReservas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- TABLA DE PERMISOS DEL USUARIO -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="permissions-section">
+            <h5>
+                {{ _('Permisos Asignados') }}
+            </h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <h6 style="font-weight: 600; margin-bottom: 1rem;">
+                        <i class="bi bi-check-circle-fill" style="color: #28a745;"></i>
+                        {{ _('Permisos Activos') }}:
+                    </h6>
+                    <ul class="list-unstyled">
+                        {% if current_user.es_administrador() %}
+                            <li class="permission-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>{{ _('Control total del sistema') }}</span>
+                            </li>
+                        {% else %}
+                            {% if current_user.tiene_permisos('ver_reservas') %}
+                                <li class="permission-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ _('Ver reservas') }}</span>
+                                </li>
+                            {% endif %}
+                            {% if current_user.tiene_permisos('ver_huespedes') %}
+                                <li class="permission-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ _('Ver huéspedes') }}</span>
+                                </li>
+                            {% endif %}
+                            {% if current_user.tiene_permisos('ver_facturacion') %}
+                                <li class="permission-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ _('Ver facturación') }}</span>
+                                </li>
+                            {% endif %}
+                            {% if current_user.tiene_permisos('ver_habitaciones') %}
+                                <li class="permission-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ _('Ver habitaciones') }}</span>
+                                </li>
+                            {% endif %}
+                            {% if current_user.tiene_permisos('ver_perfil') %}
+                                <li class="permission-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ _('Ver perfil personal') }}</span>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4" style="border-left: 2px solid #f0f0f0; padding-left: 2rem;">
+                    <p style="font-weight: 600; color: #333; margin-bottom: 0.5rem;">{{ _('Tu Rol') }}:</p>
+                    <p style="font-size: 1.1rem; font-weight: 600; color: #667eea;">{{ current_user.rol|title }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.rol != 'cliente' and datos_graficas %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Colores de la paleta Premium
+    const goldColor = '#d4af37';
+    const darkRoyal = '#0c1433';
+    const accentBlue = '#667eea';
+    const successGreen = '#28a745';
+    const dangerRed = '#dc3545';
+    const warningYellow = '#ffc107';
+    const mutedGray = '#6c757d';
+
+    // Datos desde Flask
+    const datosHab = {
+        disponible: {{ datos_graficas.habitaciones.disponible }},
+        ocupada: {{ datos_graficas.habitaciones.ocupada }},
+        mantenimiento: {{ datos_graficas.habitaciones.mantenimiento }}
+    };
+
+    const datosRes = {
+        pendiente: {{ datos_graficas.reservas.pendiente }},
+        en_curso: {{ datos_graficas.reservas['en curso'] }},
+        finalizada: {{ datos_graficas.reservas.finalizada }},
+        cancelada: {{ datos_graficas.reservas.cancelada }}
+    };
+
+    // Configuración común de animaciones para sentirlo Premium
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 2000,
+            easing: 'easeOutQuart'
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { font: { family: "'Inter', sans-serif" } }
+            }
+        }
+    };
+
+    // Gráfica de Habitaciones (Dona)
+    const ctxHab = document.getElementById('chartHabitaciones').getContext('2d');
+    new Chart(ctxHab, {
+        type: 'doughnut',
+        data: {
+            labels: ['{{ _("Disponibles") }}', '{{ _("Ocupadas") }}', '{{ _("Mantenimiento") }}'],
+            datasets: [{
+                data: [datosHab.disponible, datosHab.ocupada, datosHab.mantenimiento],
+                backgroundColor: [successGreen, dangerRed, warningYellow],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            ...commonOptions,
+            cutout: '65%',
+        }
+    });
+
+    // Gráfica de Reservas (Barras)
+    const ctxRes = document.getElementById('chartReservas').getContext('2d');
+    new Chart(ctxRes, {
+        type: 'bar',
+        data: {
+            labels: ['{{ _("Pendientes") }}', '{{ _("En Curso") }}', '{{ _("Finalizadas") }}', '{{ _("Canceladas") }}'],
+            datasets: [{
+                label: '{{ _("Cantidad") }}',
+                data: [datosRes.pendiente, datosRes.en_curso, datosRes.finalizada, datosRes.cancelada],
+                backgroundColor: [warningYellow, accentBlue, successGreen, mutedGray],
+                borderRadius: 6,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
+{% endblock %}

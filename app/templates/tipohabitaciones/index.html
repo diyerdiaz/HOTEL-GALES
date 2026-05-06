@@ -1,0 +1,155 @@
+{% extends "dashboard/base_authenticated.html" %}
+
+{% block title %}Gestión de Tipos de Habitación{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm">
+            <h2 class="mb-0 text-primary">
+                <i class="bi bi-tags-fill me-2"></i> Tipos de Habitación
+            </h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                <i class="bi bi-plus-circle me-1"></i> Nuevo Tipo
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de Tipos -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tipos %}
+                            {% for tipo in tipos %}
+                            <tr>
+                                <td class="ps-4">#{{ tipo.idTipoHabitacion }}</td>
+                                <td><span class="fw-bold">{{ tipo.nombreTipo }}</span></td>
+                                <td>{{ tipo.descripcionTipo or 'Sin descripción' }}</td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-info me-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalEditar{{ tipo.idTipoHabitacion }}"
+                                            title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalEliminar{{ tipo.idTipoHabitacion }}"
+                                            title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                    <!-- Modal Editar -->
+                                    <div class="modal fade" id="modalEditar{{ tipo.idTipoHabitacion }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered text-start">
+                                            <div class="modal-content">
+                                                <div class="modal-header border-0">
+                                                    <h5 class="modal-title fw-bold">Editar Tipo de Habitación</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('tipohabitaciones.editar', id=tipo.idTipoHabitacion) }}" method="POST">
+                                                    <div class="modal-body py-0">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-600">Nombre del Tipo</label>
+                                                            <input type="text" name="nombreTipo" class="form-control" value="{{ tipo.nombreTipo }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-600">Descripción</label>
+                                                            <textarea name="descripcionTipo" class="form-control" rows="3">{{ tipo.descripcionTipo }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Eliminar -->
+                                    <div class="modal fade" id="modalEliminar{{ tipo.idTipoHabitacion }}" tabindex="-1" aria-hidden="true" style="text-align: left;">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0">
+                                                <div class="modal-header bg-danger text-white border-0">
+                                                    <h5 class="modal-title fw-bold">Eliminar Tipo</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4 text-center">
+                                                    <i class="bi bi-exclamation-octagon text-danger fs-1 mb-3"></i>
+                                                    <p class="mb-0">¿Estás seguro de que deseas eliminar el tipo <strong>{{ tipo.nombreTipo }}</strong>?</p>
+                                                    <p class="text-muted small mt-2">Esta acción no se puede deshacer si tiene habitaciones asociadas.</p>
+                                                </div>
+                                                <div class="modal-footer border-0 justify-content-center pb-4">
+                                                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">No, cancelar</button>
+                                                    <form action="{{ url_for('tipohabitaciones.eliminar', id=tipo.idTipoHabitacion) }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger px-4 shadow-sm">Sí, eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                                    No hay tipos de habitación registrados.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header border-0 bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Nuevo Tipo de Habitación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('tipohabitaciones.index') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Nombre del Tipo</label>
+                        <input type="text" name="nombreTipo" class="form-control" placeholder="Ej: Suite, Doble, Sencilla..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Descripción</label>
+                        <textarea name="descripcionTipo" class="form-control" rows="3" placeholder="Describe las comodidades de este tipo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">Crear Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-600 { font-weight: 600; }
+    .table th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .btn-primary { background: #1a3a6a; border-color: #1a3a6a; }
+    .btn-primary:hover { background: #0f2437; border-color: #0f2437; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block titulo_contenido %}Registrar Nueva Habitación{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <div class="content-card-header">
+    <h5 class="mb-0"><i class="bi bi-plus-square me-2"></i>Formulario de Registro</h5>
+  </div>
+  <div class="content-card-body">
+    <form method="POST" class="row g-3">
+      
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Número de Habitación</label>
+        <input type="text" name="numeroHabitacion" class="form-control" placeholder="Ej: 101, 205..." required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Tipo de Habitación</label>
+        <select name="idTipoHabitacion" class="form-select" required>
+          <option value="" disabled selected>Seleccione el tipo...</option>
+          {% for tipo in tipos %}
+          <option value="{{ tipo.idTipoHabitacion }}">{{ tipo.nombreTipo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Precio por Noche (COP)</label>
+        <div class="input-group">
+          <span class="input-group-text">COP $</span>
+          <input type="number" step="1" name="precioNoche" class="form-control" placeholder="0" required>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Estado Inicial</label>
+        <select name="estadoHabitacion" class="form-select">
+          <option value="disponible" selected>Disponible</option>
+          <option value="mantenimiento">Mantenimiento</option>
+          <option value="limpieza">Limpieza</option>
+        </select>
+      </div>
+
+      <div class="col-12 mt-4">
+        <hr>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-hotel px-4">
+            <i class="bi bi-save"></i> Guardar Habitación
+          </button>
+          <a href="{{ url_for('habitaciones.index') }}" class="btn btn-outline-secondary px-4">
+            Cancelar
+          </a>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
