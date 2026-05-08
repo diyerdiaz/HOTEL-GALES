@@ -4,20 +4,95 @@ services:
   web:
     build: .
     container_name: flask_hotel_app
-    # Mapeo del puerto 81 del host al puerto 81 del contenedor
     ports:
       - "81:81"
-    # Volúmenes para permitir el desarrollo en tiempo real (hot-reload)
     volumes:
       - .:/app
-    # Variables de entorno
     environment:
       - FLASK_APP=run.py
-      - FLASK_DEBUG=1
+      - FLASK_ENV=development
       - SECRET_KEY=una_clave_secreta_muy_segura_123
-      # Aquí podrías cambiar a una DB externa en el futuro
-      # - DATABASE_URL=postgresql://user:password@db:5432/hotel_db
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgres-db:5432/${POSTGRES_DB:-master_db}
     restart: always
+    networks:
+      - coolify
 
-# Si en el futuro deseas agregar una base de datos como PostgreSQL, 
-# puedes añadir otro servicio aquí llamado 'db'.
+  postgres-db:
+    image: 'postgres:18-alpine'
+    container_name: postgres_prod_central
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    environment:
+      POSTGRES_USER: '${POSTGRES_USER:-admin}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_DB: '${POSTGRES_DB:-master_db}'
+      POSTGRES_INITDB_ARGS: '--auth-host=md5 --auth-local=md5'
+      POSTGRES_HOST_AUTH_METHOD: md5
+      TZ: America/Bogota
+    command:
+      - postgres
+      - '-c'
+      - shared_buffers=256MB
+      - '-c'
+      - effective_cache_size=768MB
+      - '-c'
+      - work_mem=16MB
+      - '-c'
+      - maintenance_work_mem=128MB
+      - '-c'
+      - max_connections=100
+      - '-c'
+      - effective_io_concurrency=200
+      - '-c'
+      - log_timezone=America/Bogota
+    volumes:
+      - '/data/postgres/prod_data:/var/lib/postgresql/data'
+    ports:
+      - '127.0.0.1:5433:5432'
+    networks:
+      - coolify
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-master_db}'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+        reservations:
+          memory: 512M
+
+  postgres-backup:
+    image: 'prodrigestivill/postgres-backup-local:18-alpine'
+    container_name: postgres_backup_sidecar
+    restart: always
+    volumes:
+      - '/data/postgres/backups:/backups'
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres-db
+      POSTGRES_DB: '${POSTGRES_DB:-master_db}'
+      POSTGRES_USER: '${POSTGRES_USER:-admin}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      SCHEDULE: '@daily'
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+      TZ: America/Bogota
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
