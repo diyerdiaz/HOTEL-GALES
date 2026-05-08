@@ -17,3 +17,4 @@ greenlet==3.0.0
 pytz==2023.3.post1
 Babel==2.13.0
 pip-review
+psycopg2-binary==2.9.9
