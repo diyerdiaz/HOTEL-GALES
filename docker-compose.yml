@@ -38,7 +38,9 @@ services:
     networks:
       - coolify
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-admin} -d $${POSTGRES_DB:-master_db}"]
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U admin -d master_db'
       interval: 10s
       timeout: 5s
       retries: 5
