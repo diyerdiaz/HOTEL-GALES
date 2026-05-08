@@ -10,7 +10,7 @@ services:
       - .:/app
     environment:
       - FLASK_APP=run.py
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - SECRET_KEY=una_clave_secreta_muy_segura_123
       - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgres-db:5432/${POSTGRES_DB:-master_db}
     restart: always
@@ -30,35 +30,15 @@ services:
       POSTGRES_USER: '${POSTGRES_USER:-admin}'
       POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
       POSTGRES_DB: '${POSTGRES_DB:-master_db}'
-      POSTGRES_INITDB_ARGS: '--auth-host=md5 --auth-local=md5'
-      POSTGRES_HOST_AUTH_METHOD: md5
       TZ: America/Bogota
-    command:
-      - postgres
-      - '-c'
-      - shared_buffers=256MB
-      - '-c'
-      - effective_cache_size=768MB
-      - '-c'
-      - work_mem=16MB
-      - '-c'
-      - maintenance_work_mem=128MB
-      - '-c'
-      - max_connections=100
-      - '-c'
-      - effective_io_concurrency=200
-      - '-c'
-      - log_timezone=America/Bogota
     volumes:
-      - '/data/postgres/prod_data:/var/lib/postgresql/data'
+      - postgres_prod_data:/var/lib/postgresql/data
     ports:
-      - '127.0.0.1:5433:5432'
+      - '5433:5432'
     networks:
       - coolify
     healthcheck:
-      test:
-        - CMD-SHELL
-        - 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-master_db}'
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-admin} -d $${POSTGRES_DB:-master_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -75,7 +55,7 @@ services:
     container_name: postgres_backup_sidecar
     restart: always
     volumes:
-      - '/data/postgres/backups:/backups'
+      - postgres_backups:/backups
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -92,6 +72,10 @@ services:
       TZ: America/Bogota
     networks:
       - coolify
+
+volumes:
+  postgres_prod_data:
+  postgres_backups:
 
 networks:
   coolify:
