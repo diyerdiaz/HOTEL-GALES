@@ -3,9 +3,8 @@ version: '3.8'
 services:
   web:
     build: .
-    container_name: flask_hotel_app
-    ports:
-      - "81:81"
+    expose:
+      - "81"
     volumes:
       - .:/app
     environment:
@@ -23,7 +22,6 @@ services:
 
   postgres-db:
     image: 'postgres:18-alpine'
-    container_name: postgres_prod_central
     restart: always
     logging:
       driver: json-file
@@ -58,7 +56,6 @@ services:
 
   postgres-backup:
     image: 'prodrigestivill/postgres-backup-local:18-alpine'
-    container_name: postgres_backup_sidecar
     restart: always
     volumes:
       - postgres_backups:/backups
