@@ -12,7 +12,11 @@ services:
       - FLASK_APP=run.py
       - FLASK_ENV=production
       - SECRET_KEY=una_clave_secreta_muy_segura_123
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD}@postgres-db:5432/${POSTGRES_DB:-master_db}
+      - DB_USER=${POSTGRES_USER:-admin}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - DB_HOST=postgres-db
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB:-master_db}
     restart: always
     networks:
       - coolify
