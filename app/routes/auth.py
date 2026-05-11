@@ -52,13 +52,20 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
+        # Limpiar espacios en blanco al inicio y final
+        nombre = nombre.strip() if nombre else ''
+        apellido = apellido.strip() if apellido else ''
+        email = email.strip().lower() if email else ''
+        telefono = telefono.strip() if telefono else ''
+        usuario = usuario.strip() if usuario else ''
+
         # Validar campos vacíos
         if not all([cedula, nombre, apellido, email, telefono, usuario, password, confirm_password]):
             flash('Por favor completa todos los campos', 'error')
             return redirect(url_for('auth.register'))
         
         # Validar email (solo gmail.com)
-        if not re.match(r"^[a-zA-Z0-9._%+\-]+@gmail\.com$", email):
+        if not re.match(r"^[a-z0-9._%+\-]+@gmail\.com$", email):
             flash('El correo electrónico debe ser una cuenta de @gmail.com', 'error')
             return redirect(url_for('auth.register'))
         
