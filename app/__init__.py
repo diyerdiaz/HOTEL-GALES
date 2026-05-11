@@ -84,5 +84,22 @@ def create_app():
             return "$ {:,.0f} COP".format(value).replace(',', '.')
         except (ValueError, TypeError):
             return value
-    
+            
+    # --- Manejo global de Errores (Evita que la app colapse) ---
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return "<h1>404 - Página no encontrada</h1><p>Lo sentimos, la página que buscas no existe.</p><a href='/'>Volver al inicio</a>", 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        # Aquí se maneja cualquier error interno o colapso
+        db.session.rollback() # Revertimos cualquier transacción fallida
+        return "<h1>500 - Error Interno del Servidor</h1><p>Ha ocurrido un problema inesperado. Por favor, inténtalo más tarde.</p><a href='/'>Volver al inicio</a>", 500
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # Maneja cualquier otra excepción no controlada
+        db.session.rollback()
+        return f"<h1>Error Inesperado</h1><p>La aplicación pudo recuperarse de un error: {str(e)}</p><a href='/'>Volver al inicio</a>", 500
+        
     return app

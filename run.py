@@ -21,8 +21,12 @@ def create_admin_user():
         print(f"[*] Usuario administrador '{username}' creado exitosamente.")
 
 with app.app_context():
-    db.create_all()
-    create_admin_user()
+    try:
+        db.create_all()
+        create_admin_user()
+    except Exception as e:
+        print(f"[!] Error crítico al inicializar la base de datos: {e}")
+        print("[!] La aplicación intentará continuar, pero algunas funciones pueden fallar.")
 
 if __name__ == '__main__':
     #+++++++++++socketio.run(app, host="0.0.0.0", port=80, debug=True, allow_unsafe_werkzeug=True)
