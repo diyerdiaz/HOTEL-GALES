@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
 from app import db
 from app.models.users import User
 from app.utils.roles import ROLES
@@ -51,17 +52,38 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
-        # Validar campos
+        # Validar campos vacíos
         if not all([cedula, nombre, apellido, email, telefono, usuario, password, confirm_password]):
             flash('Por favor completa todos los campos', 'error')
             return redirect(url_for('auth.register'))
         
-        if len(usuario) < 3:
-            flash('El usuario debe tener al menos 3 caracteres', 'error')
+        # Validar email (solo gmail.com)
+        if not re.match(r"^[a-zA-Z0-9._%+\-]+@gmail\.com$", email):
+            flash('El correo electrónico debe ser una cuenta de @gmail.com', 'error')
             return redirect(url_for('auth.register'))
         
-        if len(password) < 6:
-            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+        # Validar nombre y apellido (solo letras, máx 30 caracteres)
+        if not re.match(r"^[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,30}$", nombre) or not re.match(r"^[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,30}$", apellido):
+            flash('El nombre y apellido deben contener solo letras y máximo 30 caracteres', 'error')
+            return redirect(url_for('auth.register'))
+
+        # Validar teléfono (exactamente 10 dígitos)
+        if not re.match(r"^\d{10}$", telefono):
+            flash('El teléfono debe tener exactamente 10 dígitos numéricos', 'error')
+            return redirect(url_for('auth.register'))
+        
+        # Validar usuario (máx 15 caracteres)
+        if len(usuario) > 15:
+            flash('El usuario debe tener máximo 15 caracteres', 'error')
+            return redirect(url_for('auth.register'))
+        
+        if len(usuario) < 8:
+            flash('El usuario debe tener al menos 8 caracteres', 'error')
+            return redirect(url_for('auth.register'))
+        
+        # Validar contraseña (entre 6 y 15 caracteres)
+        if len(password) < 6 or len(password) > 15:
+            flash('La contraseña debe tener entre 6 y 15 caracteres', 'error')
             return redirect(url_for('auth.register'))
         
         if password != confirm_password:
