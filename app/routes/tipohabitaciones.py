@@ -16,6 +16,10 @@ def index():
         
         if not nombre:
             flash('El nombre es obligatorio', 'error')
+        elif len(nombre) > 15:
+            flash('El nombre no puede tener más de 15 caracteres', 'error')
+        elif descripcion and len(descripcion) > 80:
+            flash('La descripción no puede tener más de 80 caracteres', 'error')
         else:
             nuevo_tipo = TipoHabitacion(nombreTipo=nombre, descripcionTipo=descripcion)
             db.session.add(nuevo_tipo)
@@ -31,11 +35,21 @@ def index():
 @requiere_admin
 def editar(id):
     tipo = TipoHabitacion.query.get_or_404(id)
-    tipo.nombreTipo = request.form.get('nombreTipo')
-    tipo.descripcionTipo = request.form.get('descripcionTipo')
+    nombre = request.form.get('nombreTipo')
+    descripcion = request.form.get('descripcionTipo')
     
-    db.session.commit()
-    flash('Tipo de habitación actualizado', 'success')
+    if not nombre:
+        flash('El nombre es obligatorio', 'error')
+    elif len(nombre) > 15:
+        flash('El nombre no puede tener más de 15 caracteres', 'error')
+    elif descripcion and len(descripcion) > 80:
+        flash('La descripción no puede tener más de 80 caracteres', 'error')
+    else:
+        tipo.nombreTipo = nombre
+        tipo.descripcionTipo = descripcion
+        db.session.commit()
+        flash('Tipo de habitación actualizado', 'success')
+
     return redirect(url_for('tipohabitaciones.index'))
 
 @bp.route('/eliminar/<int:id>', methods=['POST'])

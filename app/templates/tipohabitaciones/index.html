@@ -61,11 +61,11 @@
                                                     <div class="modal-body py-0">
                                                         <div class="mb-3">
                                                             <label class="form-label fw-600">Nombre del Tipo</label>
-                                                            <input type="text" name="nombreTipo" class="form-control" value="{{ tipo.nombreTipo }}" required>
+                                                            <input type="text" name="nombreTipo" class="form-control" value="{{ tipo.nombreTipo }}" maxlength="15" required>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label class="form-label fw-600">Descripción</label>
-                                                            <textarea name="descripcionTipo" class="form-control" rows="3">{{ tipo.descripcionTipo }}</textarea>
+                                                            <textarea name="descripcionTipo" class="form-control" rows="3" maxlength="80">{{ tipo.descripcionTipo }}</textarea>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer border-0">
@@ -129,11 +129,11 @@
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-uppercase">Nombre del Tipo</label>
-                        <input type="text" name="nombreTipo" class="form-control" placeholder="Ej: Suite, Doble, Sencilla..." required>
+                        <input type="text" name="nombreTipo" class="form-control" placeholder="Ej: Suite, Doble, Sencilla..." maxlength="15" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-uppercase">Descripción</label>
-                        <textarea name="descripcionTipo" class="form-control" rows="3" placeholder="Describe las comodidades de este tipo..."></textarea>
+                        <textarea name="descripcionTipo" class="form-control" rows="3" placeholder="Describe las comodidades de este tipo..." maxlength="80"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
