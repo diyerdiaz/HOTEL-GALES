@@ -55,8 +55,8 @@ def nueva():
             flash('El número de habitación no puede tener más de 4 dígitos', 'error')
             return redirect(url_for('habitaciones.nueva'))
             
-        if len(str(precio)) > 6:
-            flash('El precio no puede tener más de 6 dígitos', 'error')
+        if len(str(precio)) > 7:
+            flash('El precio no puede tener más de 7 dígitos', 'error')
             return redirect(url_for('habitaciones.nueva'))
         
         nueva_hab = Habitacion(
@@ -89,8 +89,8 @@ def editar(id):
             flash('El número de habitación no puede tener más de 4 dígitos', 'error')
             return redirect(url_for('habitaciones.editar', id=id))
             
-        if len(str(hab.precioNoche)) > 6:
-            flash('El precio no puede tener más de 6 dígitos', 'error')
+        if len(str(hab.precioNoche)) > 7:
+            flash('El precio no puede tener más de 7 dígitos', 'error')
             return redirect(url_for('habitaciones.editar', id=id))
         
         db.session.commit()

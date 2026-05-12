@@ -118,11 +118,11 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span> <small class="text-muted">(Letras, Máx. 30)</small></label>
-                                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Solo letras, Máx. 30" required maxlength="30" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo se permiten letras">
+                                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Solo letras, Máx. 30" required maxlength="30" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo se permiten letras" oninput="validarSoloLetras(this, 'El nombre solo puede contener letras')">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span> <small class="text-muted">(Letras, Máx. 30)</small></label>
-                                <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Solo letras, Máx. 30" required maxlength="30" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo se permiten letras">
+                                <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Solo letras, Máx. 30" required maxlength="30" pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+" title="Solo se permiten letras" oninput="validarSoloLetras(this, 'El apellido solo puede contener letras')">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Email <small class="text-muted">(Máx. 25)</small></label>
@@ -270,6 +270,23 @@
 
 {% block extra_js %}
 <script>
+function validarSoloLetras(input, mensaje) {
+    const originalValue = input.value;
+    // Solo permitir letras y espacios
+    input.value = input.value.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s]/g, '');
+    
+    if (originalValue !== input.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Formato Incorrecto',
+            text: mensaje,
+            confirmButtonColor: '#d4af37',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+}
+
 function validarTelefono(input) {
     // Solo permitir números
     input.value = input.value.replace(/[^0-9]/g, '');
