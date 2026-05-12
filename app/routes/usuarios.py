@@ -47,33 +47,45 @@ def listar_usuarios():
             flash('Por favor completa todos los campos obligatorios (Usuario, Contraseña, Cédula, Nombre, Apellido)', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
-        # Validaciones de longitud
+        # Validaciones de longitud y formato
+        import re
+        
         if len(str(cedula)) > 11:
             flash('La cédula no puede tener más de 11 dígitos', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
-        if len(nombre) > 40:
-            flash('El nombre no puede tener más de 40 caracteres', 'error')
+        if len(nombre) > 30:
+            flash('El nombre no puede tener más de 30 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+        if not re.match(r'^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$', nombre):
+            flash('El nombre solo puede contener letras', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
-        if len(apellido) > 40:
-            flash('El apellido no puede tener más de 40 caracteres', 'error')
+        if len(apellido) > 30:
+            flash('El apellido no puede tener más de 30 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+        if not re.match(r'^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$', apellido):
+            flash('El apellido solo puede contener letras', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
-        if email and len(email) > 60:
-            flash('El email no puede tener más de 60 caracteres', 'error')
+        if email and len(email) > 25:
+            flash('El email no puede tener más de 25 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
         if telefono and len(telefono) > 11:
             flash('El teléfono no puede tener más de 11 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
-        if len(usuario) < 3 or len(usuario) > 40:
-            flash('El usuario debe tener entre 3 y 40 caracteres', 'error')
+        if direccion and len(direccion) > 30:
+            flash('La dirección no puede tener más de 30 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if len(usuario) < 3 or len(usuario) > 30:
+            flash('El usuario debe tener entre 3 y 30 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
-        if len(password) < 6 or len(password) > 40:
-            flash('La contraseña debe tener entre 6 y 40 caracteres', 'error')
+        if len(password) < 6 or len(password) > 15:
+            flash('La contraseña debe tener entre 6 y 15 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
         if password != confirm_password:
