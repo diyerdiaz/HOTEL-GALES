@@ -21,7 +21,9 @@ class Config:
             encoded_pass = urllib.parse.quote_plus(db_pass)
             db_url = f"postgresql://{db_user}:{encoded_pass}@{db_host}:{db_port}/{db_name}"
         else:
-            db_url = 'sqlite:///flaskdb.sqlite'
+            import os
+            basedir = os.path.abspath(os.path.dirname(__file__))
+            db_url = 'sqlite:///' + os.path.join(basedir, 'instance', 'flaskdb.sqlite')
             
     SQLALCHEMY_DATABASE_URI = db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
