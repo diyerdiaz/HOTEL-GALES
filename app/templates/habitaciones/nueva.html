@@ -11,8 +11,8 @@
     <form method="POST" class="row g-3">
       
       <div class="col-md-6">
-        <label class="form-label fw-bold">Número de Habitación</label>
-        <input type="text" name="numeroHabitacion" class="form-control" placeholder="Ej: 101, 205..." required>
+        <label class="form-label fw-bold">Número de Habitación <small class="text-muted">(Máx. 4)</small></label>
+        <input type="text" id="numeroHabitacion" name="numeroHabitacion" class="form-control" placeholder="Ej: 101" required maxlength="4" oninput="validarLongitud(this, 4, 'El número de habitación no puede tener más de 4 dígitos')">
       </div>
 
       <div class="col-md-6">
@@ -26,10 +26,10 @@
       </div>
 
       <div class="col-md-6">
-        <label class="form-label fw-bold">Precio por Noche (COP)</label>
+        <label class="form-label fw-bold">Precio por Noche (COP) <small class="text-muted">(Máx. 6 dígitos)</small></label>
         <div class="input-group">
           <span class="input-group-text">COP $</span>
-          <input type="number" step="1" name="precioNoche" class="form-control" placeholder="0" required>
+          <input type="number" id="precioNoche" step="1" name="precioNoche" class="form-control" placeholder="Máx. 999999" required oninput="validarLongitud(this, 6, 'El precio no puede tener más de 6 dígitos')">
         </div>
       </div>
 
@@ -57,4 +57,20 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function validarLongitud(input, max, mensaje) {
+  if (input.value.length > max) {
+    input.value = input.value.slice(0, max);
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: mensaje,
+      confirmButtonColor: '#d4af37'
+    });
+  }
+}
+</script>
 {% endblock %}

@@ -50,6 +50,15 @@ def nueva():
         precio = request.form.get('precioNoche')
         estado = request.form.get('estadoHabitacion', 'disponible')
         
+        # Validaciones de longitud
+        if len(str(numero)) > 4:
+            flash('El número de habitación no puede tener más de 4 dígitos', 'error')
+            return redirect(url_for('habitaciones.nueva'))
+            
+        if len(str(precio)) > 6:
+            flash('El precio no puede tener más de 6 dígitos', 'error')
+            return redirect(url_for('habitaciones.nueva'))
+        
         nueva_hab = Habitacion(
             numeroHabitacion=numero,
             idTipoHabitacion=id_tipo,
@@ -74,6 +83,15 @@ def editar(id):
         hab.idTipoHabitacion = request.form.get('idTipoHabitacion')
         hab.precioNoche = request.form.get('precioNoche')
         hab.estadoHabitacion = request.form.get('estadoHabitacion')
+        
+        # Validaciones de longitud
+        if len(str(hab.numeroHabitacion)) > 4:
+            flash('El número de habitación no puede tener más de 4 dígitos', 'error')
+            return redirect(url_for('habitaciones.editar', id=id))
+            
+        if len(str(hab.precioNoche)) > 6:
+            flash('El precio no puede tener más de 6 dígitos', 'error')
+            return redirect(url_for('habitaciones.editar', id=id))
         
         db.session.commit()
         flash('Habitación actualizada con éxito', 'success')

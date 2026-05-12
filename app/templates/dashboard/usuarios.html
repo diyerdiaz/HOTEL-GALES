@@ -129,8 +129,8 @@
                                 <input type="email" id="email" name="email" class="form-control" placeholder="Máx. 25 caracteres" maxlength="25">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="telefono" class="form-label">Teléfono <small class="text-muted">(Máx. 11)</small></label>
-                                <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Máx. 11 caracteres" maxlength="11">
+                                <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span> <small class="text-muted">(Obligatorio 10 dígitos)</small></label>
+                                <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ej: 3101234567" required minlength="10" maxlength="10" pattern="\d{10}" title="Debe poner 10 números" oninput="validarTelefono(this)">
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="direccion" class="form-label">Dirección <small class="text-muted">(Máx. 30)</small></label>
@@ -266,4 +266,37 @@
     </div>
 
     {% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function validarTelefono(input) {
+    // Solo permitir números
+    input.value = input.value.replace(/[^0-9]/g, '');
+    
+    if (input.value.length > 10) {
+        input.value = input.value.slice(0, 10);
+        Swal.fire({
+            icon: 'warning',
+            title: 'Límite de Teléfono',
+            text: 'El teléfono debe tener exactamente 10 números',
+            confirmButtonColor: '#d4af37'
+        });
+    }
+}
+
+// Validación al enviar el formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const tel = document.getElementById('telefono');
+    if (tel && tel.value.length !== 10) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Datos Incompletos',
+            text: 'Es obligatorio poner exactamente 10 números en el teléfono',
+            confirmButtonColor: '#d4af37'
+        });
+    }
+});
+</script>
 {% endblock %}

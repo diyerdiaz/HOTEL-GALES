@@ -72,8 +72,8 @@ def listar_usuarios():
             flash('El email no puede tener más de 25 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
-        if telefono and len(telefono) > 11:
-            flash('El teléfono no puede tener más de 11 caracteres', 'error')
+        if telefono and (len(telefono) != 10 or not telefono.isdigit()):
+            flash('El teléfono debe tener exactamente 10 números', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
 
         if direccion and len(direccion) > 30:
