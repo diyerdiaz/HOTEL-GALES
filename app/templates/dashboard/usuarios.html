@@ -113,24 +113,39 @@
                         <h6 class="text-primary mb-3"><i class="bi bi-person-vcard"></i> Datos Personales</h6>
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label for="cedula" class="form-label">Cédula <span class="text-danger">*</span></label>
-                                <input type="number" id="cedula" name="cedula" class="form-control" placeholder="Número de documento" required>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="cedula" class="form-label mb-0">Cédula <span class="text-danger">*</span></label>
+                                    <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">Máx: 11</span>
+                                </div>
+                                <input type="number" id="cedula" name="cedula" class="form-control" placeholder="Número de documento" required maxlength="11" oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" id="nombre" name="nombre" class="form-control" required>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="nombre" class="form-label mb-0">Nombre <span class="text-danger">*</span></label>
+                                    <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">Máx: 40</span>
+                                </div>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required maxlength="40">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
-                                <input type="text" id="apellido" name="apellido" class="form-control" required>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="apellido" class="form-label mb-0">Apellido <span class="text-danger">*</span></label>
+                                    <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">Máx: 40</span>
+                                </div>
+                                <input type="text" id="apellido" name="apellido" class="form-control" required maxlength="40">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" id="email" name="email" class="form-control">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="email" class="form-label mb-0">Email</label>
+                                    <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">Máx: 60</span>
+                                </div>
+                                <input type="email" id="email" name="email" class="form-control" maxlength="60">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="text" id="telefono" name="telefono" class="form-control">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="telefono" class="form-label mb-0">Teléfono</label>
+                                    <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">Máx: 11</span>
+                                </div>
+                                <input type="text" id="telefono" name="telefono" class="form-control" maxlength="11">
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="direccion" class="form-label">Dirección</label>
@@ -141,10 +156,13 @@
                         <hr>
                         <h6 class="text-primary mb-3"><i class="bi bi-shield-lock"></i> Datos de la Cuenta</h6>
                         <div class="mb-3">
-                            <label for="usuario" class="form-label">Usuario <span class="text-danger">*</span></label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="usuario" class="form-label mb-0">Usuario <span class="text-danger">*</span></label>
+                                <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">3 - 40 caract.</span>
+                            </div>
                             <input type="text" id="usuario" name="usuario" class="form-control"
-                                placeholder="Mínimo 3 caracteres" minlength="3" required>
-                            <small class="form-text text-muted">Nombre único del usuario</small>
+                                placeholder="Escribe un nombre de usuario" minlength="3" maxlength="40" required>
+                            <small class="form-text text-muted">Nombre único para acceder al sistema</small>
                         </div>
 
                         <div class="mb-3">
@@ -159,10 +177,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="password" class="form-label mb-0">Contraseña <span class="text-danger">*</span></label>
+                                <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.75rem;">6 - 40 caract.</span>
+                            </div>
                             <input type="password" id="password" name="password" class="form-control"
-                                placeholder="Mínimo 6 caracteres" minlength="6" required>
-                            <small class="form-text text-muted">Contraseña temporal segura</small>
+                                placeholder="Establece una clave" minlength="6" maxlength="40" required>
+                            <small class="form-text text-muted">Seguridad de la cuenta</small>
                         </div>
 
                         <div class="mb-3">

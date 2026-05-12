@@ -47,12 +47,33 @@ def listar_usuarios():
             flash('Por favor completa todos los campos obligatorios (Usuario, Contraseña, Cédula, Nombre, Apellido)', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
-        if len(usuario) < 3:
-            flash('El usuario debe tener al menos 3 caracteres', 'error')
+        # Validaciones de longitud
+        if len(str(cedula)) > 11:
+            flash('La cédula no puede tener más de 11 dígitos', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if len(nombre) > 40:
+            flash('El nombre no puede tener más de 40 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if len(apellido) > 40:
+            flash('El apellido no puede tener más de 40 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if email and len(email) > 60:
+            flash('El email no puede tener más de 60 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if telefono and len(telefono) > 11:
+            flash('El teléfono no puede tener más de 11 caracteres', 'error')
+            return redirect(url_for('usuarios.listar_usuarios'))
+
+        if len(usuario) < 3 or len(usuario) > 40:
+            flash('El usuario debe tener entre 3 y 40 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
-        if len(password) < 6:
-            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+        if len(password) < 6 or len(password) > 40:
+            flash('La contraseña debe tener entre 6 y 40 caracteres', 'error')
             return redirect(url_for('usuarios.listar_usuarios'))
         
         if password != confirm_password:
