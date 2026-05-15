@@ -8,9 +8,17 @@ services:
     volumes:
       - .:/app
     environment:
-      - FLASK_APP=run.py
-      - FLASK_ENV=production
-      - SECRET_KEY=una_clave_secreta_muy_segura_123
+      - FLASK_APP=${FLASK_APP}
+      - FLASK_ENV=${FLASK_ENV}
+      - FLASK_DEBUG=${FLASK_DEBUG}
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     restart: always
     networks:
       - coolify

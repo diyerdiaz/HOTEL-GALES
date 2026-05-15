@@ -19,7 +19,9 @@ class Config:
         if db_user and db_pass and db_host and db_name:
             # Codificar la contraseña para evitar que los caracteres especiales rompan la URL
             encoded_pass = urllib.parse.quote_plus(db_pass)
-            db_url = f"postgresql://{db_user}:{encoded_pass}@{db_host}:{db_port}/{db_name}"
+            db_url = f"postgresql+psycopg2://{db_user}:{encoded_pass}@{db_host}:{db_port}/{db_name}"
+            print(f"DATABASE_URL: {db_url}", flush=True)
+
         else:
             import os
             basedir = os.path.abspath(os.path.dirname(__file__))
@@ -37,4 +39,4 @@ class Config:
     # Credenciales de Administrador (desde .env)
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME') or 'admin'
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123456'
-
+
