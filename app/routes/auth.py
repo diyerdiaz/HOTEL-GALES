@@ -395,3 +395,26 @@ def restablecer_contrasena(token):
         return redirect(url_for('auth.login'))
     
     return render_template('auth/restablecer_contrasena.html', token=token)
+
+@bp.route('/simular_rol/<nuevo_role>')
+@login_required
+def simular_rol(nuevo_role):
+    """Permite a un administrador simular el rol de otro tipo de usuario."""
+    if not current_user.es_admin_real():
+        flash('No tienes permiso para realizar esta acción', 'error')
+        return redirect(url_for('auth.menu'))
+    
+    from flask import session
+    from app.utils.roles import ROLES
+    
+    if nuevo_role == 'restaurar' or nuevo_role == 'administrador':
+        session.pop('simulated_role', None)
+        flash('Rol original de Administrador restaurado', 'success')
+    elif nuevo_role in ROLES:
+        session['simulated_role'] = nuevo_role
+        flash(f'Simulando rol de: {nuevo_role.title()}', 'success')
+    else:
+        flash('Rol no válido', 'error')
+        
+    return redirect(url_for('auth.menu'))
+

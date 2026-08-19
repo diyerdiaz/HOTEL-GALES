@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from datetime import datetime
+from sqlalchemy.ext.hybrid import hybrid_property
 from app import db 
 
 class User(db.Model, UserMixin):
@@ -9,11 +10,33 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     usuario = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    rol = db.Column(db.String(50), default='cliente', nullable=False)
+    _rol = db.Column('rol', db.String(50), default='cliente', nullable=False)
     cedula = db.Column(db.BigInteger, db.ForeignKey('cliente.cedula'), nullable=True)
     estado_limpieza = db.Column(db.String(20), default='disponible')
     salario = db.Column(db.Numeric(10, 2), default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    @hybrid_property
+    def rol(self):
+        from flask import has_request_context, session
+        if not isinstance(self, type) and has_request_context():
+            try:
+                if self._rol == 'administrador' and 'simulated_role' in session:
+                    return session['simulated_role']
+            except Exception:
+                pass
+        return self._rol
+
+    @rol.setter
+    def rol(self, value):
+        self._rol = value
+
+    @property
+    def real_rol(self):
+        return self._rol
+
+    def es_admin_real(self):
+        return self._rol == 'administrador'
 
     def get_id(self):
         return str(self.id)
