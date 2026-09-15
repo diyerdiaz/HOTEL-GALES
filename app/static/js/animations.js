@@ -24,7 +24,7 @@ function initializeAnimations() {
 
 // ===== ANIMAR TEXTO DE BIENVENIDA (TYPEWRITER LOOP) =====
 function animateWelcomeText() {
-    const titleElement = document.querySelector('.auth-image h2');
+    const titleElement = document.querySelector('.auth-image h2.animated-brand');
     if (!titleElement) return;
 
     const text = titleElement.textContent.trim() || "Hotel Gales";

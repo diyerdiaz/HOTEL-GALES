@@ -16,9 +16,9 @@
 </head>
 <body>
     <!-- Language Switcher for Login -->
-    <div style="position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; align-items: center;">
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 12px; align-items: center;">
         <!-- Dark Mode Toggle -->
-        <button id="darkModeToggle" class="btn-premium-lang shadow-sm" style="width: 45px; height: 45px; justify-content: center; padding: 0;">
+        <button id="darkModeToggle" class="btn-theme-circle" title="Cambiar tema">
             <i class="bi bi-moon-stars-fill"></i>
         </button>
         <div class="lang-dropdown">
@@ -48,10 +48,15 @@
 
     <div class="auth-container">
         <div class="auth-card">
-            <!-- Lado izquierdo - Hotel y Título -->
+            <!-- Lado izquierdo - Hotel e Imagen Interior -->
             <div class="auth-image">
                 <div class="auth-image-content">
-                    <h2 class="font-brand">Hotel Gales</h2>
+                    <div class="hotel-title-wrapper">
+                        <h2 class="font-brand animated-brand">Hotel Gales</h2>
+                    </div>
+                    <div class="gold-diamond-motif">
+                        <span>❖</span>
+                    </div>
                     <p>{{ _('Su escape de lujo comienza aquí') }}</p>
                 </div>
             </div>
@@ -59,6 +64,11 @@
             <!-- Lado derecho - Formulario -->
             <div class="auth-form">
                 <h1>{{ _('Bienvenido') }}</h1>
+
+                <div class="gold-divider">
+                    <span class="diamond-icon">❖</span>
+                </div>
+
                 <p class="subtitle">{{ _('Por favor, ingrese sus credenciales para continuar') }}</p>
 
                 <form method="post" action="{{ url_for('auth.login') }}">
@@ -87,10 +97,14 @@
                     </button>
                 </form>
 
+                <div class="gold-divider bottom-divider">
+                    <span class="diamond-icon">❖</span>
+                </div>
+
                 <div class="auth-footer">
-                    <p><a href="{{ url_for('auth.recuperar_contrasena') }}">{{ _('¿Olvidaste tu contraseña?') }}</a></p>
-                    <p>{{ _('¿No tiene una cuenta?') }} 
-                        <a href="{{ url_for('auth.register') }}">{{ _('Regístrese aquí') }}</a>
+                    <p><a href="{{ url_for('auth.recuperar_contrasena') }}" class="forgot-link">{{ _('¿Olvidaste tu contraseña?') }}</a></p>
+                    <p class="register-link-text">{{ _('¿No tiene una cuenta?') }} 
+                        <a href="{{ url_for('auth.register') }}" class="register-link">{{ _('Regístrese aquí') }}</a>
                     </p>
                 </div>
             </div>
@@ -121,21 +135,28 @@
         const body = document.body;
         const icon = darkModeToggle.querySelector('i');
 
-        if (localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark-mode');
-            icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        function updateThemeUI(isDark) {
+            if (isDark) {
+                body.classList.add('dark-mode');
+                icon.className = 'bi bi-sun-fill';
+            } else {
+                body.classList.remove('dark-mode');
+                icon.className = 'bi bi-moon-stars-fill';
+            }
+        }
+
+        // Initial state load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            updateThemeUI(true);
+        } else {
+            updateThemeUI(false);
         }
 
         darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDark = body.classList.contains('dark-mode');
-            if (isDark) {
-                localStorage.setItem('theme', 'dark');
-                icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-            } else {
-                localStorage.setItem('theme', 'light');
-                icon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
-            }
+            const isDark = !body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
         });
 
         // --- SWEETALERT2 FLASH MESSAGES ---
