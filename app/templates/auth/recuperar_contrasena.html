@@ -4,23 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Gales - {{ _('Recuperar Contraseña') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.12.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lang-selector.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    <!-- Language & Dark Mode Switcher -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 12px; align-items: center;">
+        <button id="darkModeToggle" class="btn-theme-circle" title="Cambiar tema">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+        <div class="lang-dropdown">
+            <button class="btn-premium-lang dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-globe2"></i>
+                {% if session.get('language', 'es') == 'es' %}
+                    <span><span class="fi fi-es rounded-circle"></span> <span class="lang-text">Español</span></span>
+                {% else %}
+                    <span><span class="fi fi-us rounded-circle"></span> <span class="lang-text">English</span></span>
+                {% endif %}
+                <i class="bi bi-chevron-down chevron ms-1"></i>
+            </button>
+            <ul class="dropdown-menu lang-dropdown-menu">
+                <li>
+                    <a class="lang-dropdown-item {{ 'active' if session.get('language', 'es') == 'es' else '' }}" href="{{ url_for('auth.set_language', lang='es') }}">
+                        <span class="fi fi-es rounded-circle"></span> Español
+                    </a>
+                </li>
+                <li>
+                    <a class="lang-dropdown-item {{ 'active' if session.get('language') == 'en' else '' }}" href="{{ url_for('auth.set_language', lang='en') }}">
+                        <span class="fi fi-us rounded-circle"></span> English
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <div class="auth-container">
         <div class="auth-card">
+            <!-- Lado izquierdo - Hotel e Imagen Interior -->
             <div class="auth-image">
                 <div class="auth-image-content">
-                    <h2>Hotel Gales</h2>
+                    <div class="hotel-title-wrapper">
+                        <h2 class="font-brand">Hotel Gales</h2>
+                        <span class="gold-vertical-bar"></span>
+                    </div>
+                    <div class="gold-diamond-motif">
+                        <span>❖</span>
+                    </div>
                     <p>{{ _('Recupera tu contraseña') }}</p>
                 </div>
             </div>
 
+            <!-- Lado derecho - Formulario -->
             <div class="auth-form">
                 <h1>{{ _('Recuperar Contraseña') }}</h1>
+
+                <div class="gold-divider">
+                    <span class="diamond-icon">❖</span>
+                </div>
+
                 <p class="subtitle">{{ _('Ingresa tu correo electrónico para recibir instrucciones') }}</p>
 
                 <form method="post" action="{{ url_for('auth.recuperar_contrasena') }}">
@@ -34,9 +81,13 @@
                     </button>
                 </form>
 
+                <div class="gold-divider bottom-divider">
+                    <span class="diamond-icon">❖</span>
+                </div>
+
                 <div class="auth-footer">
                     <p>{{ _('¿Recuerdas tu contraseña?') }}
-                        <a href="{{ url_for('auth.login') }}">{{ _('Iniciar Sesión') }}</a>
+                        <a href="{{ url_for('auth.login') }}" class="register-link">{{ _('Iniciar Sesión') }}</a>
                     </p>
                 </div>
             </div>
@@ -45,6 +96,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- DARK MODE LOGIC ---
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const icon = darkModeToggle.querySelector('i');
+
+        function updateThemeUI(isDark) {
+            if (isDark) {
+                body.classList.add('dark-mode');
+                icon.className = 'bi bi-sun-fill';
+            } else {
+                body.classList.remove('dark-mode');
+                icon.className = 'bi bi-moon-stars-fill';
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            updateThemeUI(true);
+        } else {
+            updateThemeUI(false);
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            const isDark = !body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
+        });
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
