@@ -60,6 +60,12 @@
                     <span>{{ _('Notificaciones') }}</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ url_for('comentarios.mis_comentarios') }}" class="sidebar-link {% if 'comentarios' in request.endpoint %}active{% endif %}">
+                    <i class="bi bi-star-fill"></i>
+                    <span>{{ _('Comentarios') }}</span>
+                </a>
+            </li>
             {% endif %}
 
             <!-- VISTA PERSONAL / OPERACIÓN -->

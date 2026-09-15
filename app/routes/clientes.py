@@ -28,9 +28,16 @@ def index():
     # 3. Obtener los IDs (cédulas) de usuarios que NO son rol 'cliente'
     usuarios_staff = User.query.filter(User.rol != 'cliente').all()
     cedulas_staff = [u.cedula for u in usuarios_staff if u.cedula]
-    
-    # 4. Filtrar la lista para mostrar solo clientes reales
-    clientes_filtrados = [c for c in clientes_bd if c.cedula not in cedulas_staff]
+
+    # 3.1 Obtener las cédulas que SÍ tienen una cuenta de cliente activa
+    usuarios_cliente = User.query.filter_by(rol='cliente').all()
+    cedulas_clientes_activos = {u.cedula for u in usuarios_cliente if u.cedula}
+
+    # 4. Filtrar la lista para mostrar solo clientes reales con cuenta activa
+    clientes_filtrados = [
+        c for c in clientes_bd
+        if c.cedula not in cedulas_staff and c.cedula in cedulas_clientes_activos
+    ]
     
     # 5. Calcular estadísticas y obtener información de quién atendió
     import json

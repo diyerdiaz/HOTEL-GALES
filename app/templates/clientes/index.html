@@ -254,9 +254,14 @@
     color: #1e293b;
     margin-bottom: 1.25rem;
   }
+  body.dark-mode .profile-label,
+  body.dark-mode .profile-value {
+    color: var(--text-main) !important;
+  }
 </style>
 {% endblock %}
 
+{% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const clienteModal = document.getElementById('clienteModal');
@@ -320,3 +325,4 @@
     }
   });
 </script>
+{% endblock %}

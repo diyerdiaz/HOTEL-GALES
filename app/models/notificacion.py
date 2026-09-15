@@ -12,7 +12,7 @@ class Notificacion(db.Model):
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     link = db.Column(db.String(500))  # Enlace opcional a la reserva relacionada
     
-    usuario = db.relationship('User', backref='notificaciones', lazy=True)
+    usuario = db.relationship('User', backref=db.backref('notificaciones', cascade='all, delete-orphan'), lazy=True)
     
     def __repr__(self):
         return f'<Notificacion {self.idNotificacion} - {self.tipo} - {self.titulo}>'

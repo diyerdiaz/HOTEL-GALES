@@ -192,14 +192,30 @@ def eliminar_usuario(id):
         return redirect(redir_target)
         
     usuario = User.query.get_or_404(id)
-    
+
     if usuario.id == current_user.id:
         flash(_('No puedes eliminarte a ti mismo.'), 'error')
     else:
+        cedula = usuario.cedula
+        nombre_usuario = usuario.usuario
         db.session.delete(usuario)
         db.session.commit()
-        flash(_('Usuario %(usuario)s eliminado exitosamente.') % {'usuario': usuario.usuario}, 'success')
-        
+
+        # Si el cliente asociado no tiene reservas ni otras cuentas vinculadas,
+        # se elimina también su ficha para que no quede huérfana en Gestión de Clientes.
+        if cedula:
+            from app.models.cliente import Cliente
+            from app.models.reserva import Reserva
+            tiene_reservas = Reserva.query.filter_by(cedulaCliente=cedula).first() is not None
+            otra_cuenta_vinculada = User.query.filter_by(cedula=cedula).first() is not None
+            if not tiene_reservas and not otra_cuenta_vinculada:
+                cliente = Cliente.query.get(cedula)
+                if cliente:
+                    db.session.delete(cliente)
+                    db.session.commit()
+
+        flash(_('Usuario %(usuario)s eliminado exitosamente.') % {'usuario': nombre_usuario}, 'success')
+
     return redirect(redir_target)
 
 @bp.route('/recepcionistas')
