@@ -29,4 +29,4 @@ with app.app_context():
         print("[!] La aplicación intentará continuar, pero algunas funciones pueden fallar.")
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8181, debug=True)
+    app.run(host="0.0.0.0", port=81, debug=True)
