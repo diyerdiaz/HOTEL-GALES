@@ -1,9 +1,10 @@
-"""Utilidades compartidas por las pruebas de la Persona 1.
+"""Utilidades compartidas por las pruebas de software.
 
 La base de datos se crea en un directorio temporal para que las pruebas nunca
 modifiquen la base de datos configurada para desarrollo o producción.
 """
 
+from datetime import date, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -129,6 +130,7 @@ class HotelTestCase(unittest.TestCase):
         cedula=None,
         email=None,
         telefono="3001234567",
+        salario=0,
     ):
         """Crea un usuario y, cuando se proporciona cédula, su ficha de cliente."""
         from app import db
@@ -157,6 +159,7 @@ class HotelTestCase(unittest.TestCase):
                 password=generate_password_hash(password),
                 rol=rol,
                 cedula=int(cedula) if cedula is not None else None,
+                salario=salario,
             )
             db.session.add(user)
             db.session.commit()
@@ -171,3 +174,188 @@ class HotelTestCase(unittest.TestCase):
             db.session.add(rol)
             db.session.commit()
             return rol.idRolEmpleado
+
+    def crear_habitacion(
+        self,
+        numero=101,
+        precio=200000,
+        estado="disponible",
+        tipo_nombre="Estándar",
+    ):
+        from app import db
+        from app.models.habitacion import Habitacion
+        from app.models.tipohabitacion import TipoHabitacion
+
+        with self.app.app_context():
+            tipo = TipoHabitacion.query.filter_by(nombreTipo=tipo_nombre).first()
+            if tipo is None:
+                tipo = TipoHabitacion(
+                    nombreTipo=tipo_nombre, descripcionTipo="Tipo de prueba"
+                )
+                db.session.add(tipo)
+                db.session.flush()
+            habitacion = Habitacion(
+                numeroHabitacion=numero,
+                idTipoHabitacion=tipo.idTipoHabitacion,
+                precioNoche=precio,
+                estadoHabitacion=estado,
+            )
+            db.session.add(habitacion)
+            db.session.commit()
+            return habitacion.idHabitacion
+
+    def crear_reserva(
+        self,
+        cedula,
+        habitacion_id,
+        estado="confirmada",
+        fecha_entrada=None,
+        fecha_salida=None,
+        cantidad_personas=1,
+    ):
+        from app import db
+        from app.models.reserva import Reserva
+
+        if fecha_entrada is None:
+            fecha_entrada = date.today()
+        if fecha_salida is None:
+            fecha_salida = fecha_entrada + timedelta(days=2)
+
+        with self.app.app_context():
+            reserva = Reserva(
+                cedulaCliente=int(cedula),
+                idHabitacion=habitacion_id,
+                fechaEntrada=fecha_entrada,
+                fechaSalida=fecha_salida,
+                cantidadPersonas=cantidad_personas,
+                estadoReserva=estado,
+            )
+            db.session.add(reserva)
+            db.session.commit()
+            return reserva.idReserva
+
+    def crear_factura(self, reserva_id, total=400000, fecha_emision=None):
+        from app import db
+        from app.models.factura import Factura
+
+        with self.app.app_context():
+            factura = Factura(
+                idReserva=reserva_id,
+                totalFactura=total,
+                fechaFactura=fecha_emision,
+            )
+            db.session.add(factura)
+            db.session.commit()
+            return factura.idFactura
+
+    def crear_pago(
+        self,
+        reserva_id,
+        metodo="tarjeta",
+        valor=200000,
+    ):
+        from app import db
+        from app.models.pago import Pago
+
+        with self.app.app_context():
+            pago = Pago(
+                idReserva=reserva_id,
+                metodoPago=metodo,
+                valorPago=valor,
+            )
+            db.session.add(pago)
+            db.session.commit()
+            return pago.idPago
+
+    def crear_servicio(
+        self,
+        nombre="Desayuno buffet",
+        precio=35000,
+        tipo_nombre="Alimentación",
+    ):
+        from app import db
+        from app.models.servicio import Servicio
+        from app.models.tiposervicio import TipoServicio
+
+        with self.app.app_context():
+            tipo = TipoServicio.query.filter_by(
+                nombreTipoServicio=tipo_nombre
+            ).first()
+            if tipo is None:
+                tipo = TipoServicio(nombreTipoServicio=tipo_nombre)
+                db.session.add(tipo)
+                db.session.flush()
+            servicio = Servicio(
+                nombreServicio=nombre,
+                idTipoServicio=tipo.idTipoServicio,
+                precioServicio=precio,
+            )
+            db.session.add(servicio)
+            db.session.commit()
+            return servicio.idServicio
+
+    def crear_consumo(
+        self,
+        reserva_id,
+        servicio_id,
+        cantidad=2,
+        subtotal=70000,
+    ):
+        from app import db
+        from app.models.consumo import Consumo
+
+        with self.app.app_context():
+            consumo = Consumo(
+                idReserva=reserva_id,
+                idServicio=servicio_id,
+                cantidad=cantidad,
+                subtotal=subtotal,
+            )
+            db.session.add(consumo)
+            db.session.commit()
+            return consumo.idConsumo
+
+    def crear_notificacion(
+        self,
+        usuario_id,
+        titulo="Reserva creada",
+        mensaje="La reserva fue creada correctamente.",
+        leida=False,
+        link=None,
+    ):
+        from app import db
+        from app.models.notificacion import Notificacion
+
+        with self.app.app_context():
+            notificacion = Notificacion(
+                usuario_id=usuario_id,
+                tipo="prueba",
+                titulo=titulo,
+                mensaje=mensaje,
+                leida=leida,
+                link=link,
+            )
+            db.session.add(notificacion)
+            db.session.commit()
+            return notificacion.idNotificacion
+
+    def crear_comentario(
+        self,
+        habitacion_id,
+        cedula,
+        calificacion=5,
+        texto="La habitación fue muy cómoda y limpia.",
+    ):
+        from app import db
+        from app.models.comentario import Comentario
+
+        with self.app.app_context():
+            comentario = Comentario(
+                idHabitacion=habitacion_id,
+                cedulaCliente=int(cedula),
+                calificacion=calificacion,
+                comentario=texto,
+            )
+            db.session.add(comentario)
+            db.session.commit()
+            return comentario.idComentario
