@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import os
+import uuid
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from PIL import Image
 from flask_babel import gettext as _
 from flask_login import login_required, current_user
 from app import db
@@ -7,6 +10,70 @@ from app.models.tipohabitacion import TipoHabitacion
 from app.utils.decorators import requiere_permiso
 
 bp = Blueprint('habitaciones', __name__, url_prefix='/habitaciones')
+
+EXTENSIONES_IMAGEN = {'jpg', 'jpeg', 'png', 'webp'}
+FORMATOS_IMAGEN = {'JPEG', 'PNG', 'WEBP'}
+CAMPOS_IMAGEN = ('imagen1', 'imagen2', 'imagen3')
+ESTADOS_HABITACION = ('disponible', 'ocupada', 'mantenimiento', 'limpieza')
+
+
+def _carpeta_imagenes():
+    carpeta = current_app.config.get('HABITACIONES_UPLOAD_FOLDER') or \
+        os.path.join(current_app.static_folder, 'uploads', 'habitaciones')
+    os.makedirs(carpeta, exist_ok=True)
+    return carpeta
+
+
+def _imagenes_enviadas():
+    return [f for f in request.files.getlist('imagenes') if f and f.filename]
+
+
+def _validar_imagenes(hab=None):
+    """Devuelve un mensaje de error si algún archivo no es válido o se superan las 3 imágenes"""
+    for archivo in _imagenes_enviadas():
+        ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
+        if ext not in EXTENSIONES_IMAGEN:
+            return _('Solo se permiten imágenes JPG, PNG o WEBP')
+        # Se revisa el contenido real del archivo, no solo su extensión
+        try:
+            with Image.open(archivo.stream) as img:
+                formato = img.format
+                img.verify()
+        except Exception:
+            formato = None
+        archivo.stream.seek(0)
+        if formato not in FORMATOS_IMAGEN:
+            return _('La imagen %(nombre)s está vacía o dañada', nombre=archivo.filename)
+
+    conservadas = 0
+    if hab:
+        conservadas = sum(1 for campo in CAMPOS_IMAGEN
+                          if getattr(hab, campo) and not request.form.get(f'eliminar_{campo}'))
+    if conservadas + len(_imagenes_enviadas()) > len(CAMPOS_IMAGEN):
+        return _('Solo puedes agregar máximo 3 imágenes por habitación')
+    return None
+
+
+def _borrar_imagen(nombre):
+    if nombre:
+        ruta = os.path.join(_carpeta_imagenes(), nombre)
+        if os.path.exists(ruta):
+            os.remove(ruta)
+
+
+def _guardar_imagenes(hab):
+    """Elimina las imágenes marcadas y ubica las nuevas en los espacios libres"""
+    for campo in CAMPOS_IMAGEN:
+        if request.form.get(f'eliminar_{campo}'):
+            _borrar_imagen(getattr(hab, campo))
+            setattr(hab, campo, None)
+
+    libres = [campo for campo in CAMPOS_IMAGEN if not getattr(hab, campo)]
+    for campo, archivo in zip(libres, _imagenes_enviadas()):
+        ext = archivo.filename.rsplit('.', 1)[-1].lower()
+        nombre = f"{uuid.uuid4().hex}.{ext}"
+        archivo.save(os.path.join(_carpeta_imagenes(), nombre))
+        setattr(hab, campo, nombre)
 
 @bp.route('/publica')
 def publica():
@@ -180,6 +247,11 @@ def nueva():
         if len(str(precio)) > 7:
             flash(_('El precio no puede tener más de 7 dígitos'), 'error')
             return redirect(url_for('habitaciones.nueva'))
+
+        error_imagen = _validar_imagenes()
+        if error_imagen:
+            flash(error_imagen, 'error')
+            return redirect(url_for('habitaciones.nueva'))
         
         nueva_hab = Habitacion(
             numeroHabitacion=numero,
@@ -187,6 +259,7 @@ def nueva():
             precioNoche=precio,
             estadoHabitacion=estado
         )
+        _guardar_imagenes(nueva_hab)
         db.session.add(nueva_hab)
         db.session.commit()
         flash(_('Habitación registrada con éxito'), 'success')
@@ -214,7 +287,13 @@ def editar(id):
         if len(str(hab.precioNoche)) > 7:
             flash(_('El precio no puede tener más de 7 dígitos'), 'error')
             return redirect(url_for('habitaciones.editar', id=id))
-        
+
+        error_imagen = _validar_imagenes(hab)
+        if error_imagen:
+            flash(error_imagen, 'error')
+            return redirect(url_for('habitaciones.editar', id=id))
+
+        _guardar_imagenes(hab)
         db.session.commit()
         flash(_('Habitación actualizada con éxito'), 'success')
         return redirect(url_for('habitaciones.index'))
@@ -222,13 +301,16 @@ def editar(id):
     tipos = TipoHabitacion.query.all()
     return render_template('habitaciones/editar.html', hab=hab, tipos=tipos)
 
-@bp.route('/eliminar/<int:id>')
+@bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required
 @requiere_permiso('eliminar_habitacion')
 def eliminar(id):
     hab = Habitacion.query.get_or_404(id)
+    imagenes = hab.imagenes
     db.session.delete(hab)
     db.session.commit()
+    for img in imagenes:
+        _borrar_imagen(img)
     flash(_('Habitación eliminada correctamente'), 'info')
     return redirect(url_for('habitaciones.index'))
 
@@ -273,11 +355,21 @@ def detalle(id):
                           ya_comento=ya_comento,
                           tiene_reserva_activa=tiene_reserva_activa)
 
-@bp.route('/estado/<int:id>/<string:nuevo_estado>')
+@bp.route('/estado/<int:id>/<string:nuevo_estado>', methods=['POST'])
 @login_required
 @requiere_permiso('actualizar_habitaciones')
 def cambiar_estado(id, nuevo_estado):
     hab = Habitacion.query.get_or_404(id)
+
+    if nuevo_estado not in ESTADOS_HABITACION:
+        flash(_('Estado inválido.'), 'error')
+        return redirect(url_for('habitaciones.index'))
+
+    # El personal de limpieza solo puede marcar como disponible una habitación en limpieza
+    if current_user.rol == 'servicio_limpieza' and not (
+            nuevo_estado == 'disponible' and hab.estadoHabitacion == 'limpieza'):
+        flash(_('No tienes permiso para realizar esta acción'), 'error')
+        return redirect(url_for('habitaciones.index'))
     
     if current_user.rol == 'servicio_limpieza' and nuevo_estado == 'disponible' and hab.estadoHabitacion == 'limpieza':
         # Registrar automáticamente en el historial de limpieza sin requerir asignación manual

@@ -11,6 +11,9 @@ __pycache__/
 *.sqlite
 instance/
 
+# Imágenes subidas por usuarios
+app/static/uploads/
+
 # Biblioteca Flask
 Biblioteca Flask/
 

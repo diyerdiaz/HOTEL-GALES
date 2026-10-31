@@ -1,0 +1,12 @@
+{{ _('Hola %(nombre)s,', nombre=nombre) }}
+
+{{ _('Recibimos una solicitud para restablecer la contraseña de tu cuenta de Hotel Gales (usuario: %(usuario)s).', usuario=usuario) }}
+
+{{ _('Para crear una nueva contraseña abre este enlace:') }}
+{{ enlace }}
+
+{{ _('El enlace es válido por 1 hora y solo se puede usar una vez.') }}
+
+{{ _('Si no solicitaste este cambio, ignora este correo: tu contraseña actual seguirá funcionando.') }}
+
+Hotel Gales

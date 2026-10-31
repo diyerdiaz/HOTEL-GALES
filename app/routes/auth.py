@@ -4,12 +4,26 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 import re
+from urllib.parse import urlparse
 from app import db
 from app.models.users import User
 from app.utils.roles import ROLES, rol_label
 from app.utils.decorators import requiere_admin
+from app.utils.correo import correo_configurado, enviar_correo
 
 bp = Blueprint('auth', __name__)
+
+
+def _url_publica(endpoint, **valores):
+    """URL absoluta para enlaces enviados por correo.
+
+    Usa URL_PUBLICA si está configurada: así el enlace no depende de la cabecera Host
+    de la petición, que un atacante podría falsificar para recibir el token.
+    """
+    base = current_app.config.get('URL_PUBLICA')
+    if base:
+        return base + url_for(endpoint, **valores)
+    return url_for(endpoint, _external=True, **valores)
 
 @bp.route('/', methods=['GET', 'POST'])
 def login():
@@ -250,11 +264,41 @@ def perfil():
         password = request.form.get('password')
         confirmar = request.form.get('confirm_password')
 
-        # Si el usuario quiere cambiar de nombre de usuario
+        # Si el usuario quiere cambiar de nombre de usuario (mismas reglas que el registro)
         if nuevo_usuario and nuevo_usuario != current_user.usuario:
+            if not re.match(r"^[a-zA-Z0-9._\-]{4,20}$", nuevo_usuario):
+                flash(_('El nombre de usuario debe tener entre 4 y 20 caracteres y solo contener letras, números, puntos, guiones o guiones bajos.'), 'error')
+                return redirect(url_for('auth.perfil'))
             if User.query.filter_by(usuario=nuevo_usuario).first():
                 flash(_('El nombre de usuario ya está en uso'), 'error')
                 return redirect(url_for('auth.perfil'))
+
+        # Validar datos de cliente antes de modificar cualquier cosa
+        if cliente:
+            nombre = (request.form.get('nombre') or cliente.nombre or '').strip()
+            apellido = (request.form.get('apellido') or cliente.apellido or '').strip()
+            email = (request.form.get('email') or cliente.email or '').strip().lower()
+            telefono = (request.form.get('telefono') or cliente.telefono or '').strip()
+            direccion = request.form.get('direccion', cliente.direccion)
+
+            patron_nombre = r"^[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,30}$"
+            if not re.match(patron_nombre, nombre) or not re.match(patron_nombre, apellido):
+                flash(_('El nombre y apellido deben contener solo letras y máximo 30 caracteres'), 'error')
+                return redirect(url_for('auth.perfil'))
+            if email:
+                if not re.match(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", email):
+                    flash(_('Por favor ingresa un correo electrónico válido.'), 'error')
+                    return redirect(url_for('auth.perfil'))
+                # El correo identifica la cuenta al recuperar la contraseña: no puede repetirse
+                otro = Cliente.query.filter(Cliente.email == email, Cliente.cedula != cliente.cedula).first()
+                if otro:
+                    flash(_('El correo electrónico ya está registrado'), 'error')
+                    return redirect(url_for('auth.perfil'))
+            if telefono and not re.match(r"^\+?\d{7,15}$", telefono):
+                flash(_('El teléfono debe tener entre 7 y 15 dígitos numéricos (puede empezar con +)'), 'error')
+                return redirect(url_for('auth.perfil'))
+
+        if nuevo_usuario and nuevo_usuario != current_user.usuario:
             current_user.usuario = nuevo_usuario
 
         # Cambio de contraseña
@@ -272,11 +316,11 @@ def perfil():
 
         # Actualizar datos de cliente (si existen)
         if cliente:
-            cliente.nombre = request.form.get('nombre', cliente.nombre)
-            cliente.apellido = request.form.get('apellido', cliente.apellido)
-            cliente.email = request.form.get('email', cliente.email)
-            cliente.telefono = request.form.get('telefono', cliente.telefono)
-            cliente.direccion = request.form.get('direccion', cliente.direccion)
+            cliente.nombre = nombre
+            cliente.apellido = apellido
+            cliente.email = email or None
+            cliente.telefono = telefono
+            cliente.direccion = direccion
 
         try:
             db.session.commit()
@@ -312,7 +356,13 @@ def set_language(lang):
     from flask import session, current_app
     if lang in current_app.config['LANGUAGES']:
         session['language'] = lang
-    return redirect(request.referrer or url_for('auth.login'))
+    # Solo se regresa a páginas de este mismo sitio (evita redirecciones a sitios externos)
+    destino = request.referrer
+    if destino:
+        ref = urlparse(destino)
+        if ref.netloc and ref.netloc != request.host:
+            destino = None
+    return redirect(destino or url_for('auth.login'))
 
 @bp.route('/recuperar-contrasena', methods=['GET', 'POST'])
 def recuperar_contrasena():
@@ -329,20 +379,36 @@ def recuperar_contrasena():
         
         # Buscar usuario por email a través del cliente
         from app.models.cliente import Cliente
-        cliente = Cliente.query.filter_by(email=email.lower()).first()
-        
+        cliente = Cliente.query.filter_by(email=email.strip().lower()).first()
+
         if cliente:
             user = User.query.filter_by(cedula=cliente.cedula).first()
             if user:
                 # Generar token de recuperación
                 from app.models.password_reset import PasswordResetToken
                 token = PasswordResetToken.generate_token(user.id)
-                
-                # En desarrollo, mostrar el token en pantalla
-                # En producción, aquí se enviaría el email
-                flash(_('Token de recuperación (desarrollo): %(token)s') % {'token': token}, 'info')
-                flash(_('Se ha enviado un correo con instrucciones para recuperar tu contraseña'), 'success')
-                return redirect(url_for('auth.restablecer_contrasena', token=token))
+
+                # Solo en desarrollo se lleva al usuario directo al formulario con el token.
+                # En producción eso permitiría a cualquiera cambiar la contraseña de otra
+                # persona conociendo su correo: el enlace solo se envía a su correo.
+                if current_app.config.get('MOSTRAR_TOKEN_RECUPERACION'):
+                    flash(_('Token de recuperación (desarrollo): %(token)s') % {'token': token}, 'info')
+                    return redirect(url_for('auth.restablecer_contrasena', token=token))
+
+                enlace = _url_publica('auth.restablecer_contrasena', token=token)
+                if correo_configurado():
+                    datos = {'nombre': cliente.nombre, 'usuario': user.usuario, 'enlace': enlace}
+                    enviar_correo(
+                        cliente.email,
+                        _('Recupera tu contraseña - Hotel Gales'),
+                        render_template('emails/recuperar_contrasena.txt', **datos),
+                        render_template('emails/recuperar_contrasena.html', **datos),
+                    )
+                else:
+                    # Sin servidor de correo configurado, el enlace queda en el registro del servidor
+                    current_app.logger.warning(
+                        "Correo no configurado (MAIL_SERVER). Enlace de recuperación para el usuario %s: %s",
+                        user.usuario, enlace)
         
         # Por seguridad, siempre mostrar el mismo mensaje incluso si el email no existe
         flash(_('Si el correo está registrado, recibirás instrucciones para recuperar tu contraseña'), 'info')

@@ -137,7 +137,7 @@ class TestLimpieza(HotelTestCase):
         tarea_id = self.crear_tarea_limpieza(hab_id, user_id, estado="pendiente")
 
         self.iniciar_sesion("limp.inicia")
-        respuesta = self.client.get(f"/limpieza/iniciar/{tarea_id}", follow_redirects=False)
+        respuesta = self.client.post(f"/limpieza/iniciar/{tarea_id}", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
 
         with self.app.app_context():
@@ -155,7 +155,7 @@ class TestLimpieza(HotelTestCase):
         tarea_id = self.crear_tarea_limpieza(hab_id, user_id, estado="en curso")
 
         self.iniciar_sesion("limp.completa")
-        respuesta = self.client.get(f"/limpieza/completar/{tarea_id}", follow_redirects=False)
+        respuesta = self.client.post(f"/limpieza/completar/{tarea_id}", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
 
         with self.app.app_context():
@@ -175,10 +175,10 @@ class TestLimpieza(HotelTestCase):
         tarea_id = self.crear_tarea_limpieza(hab_id, user1, estado="pendiente")
 
         self.iniciar_sesion("limp.ajeno")
-        resp_iniciar = self.client.get(f"/limpieza/iniciar/{tarea_id}", follow_redirects=False)
+        resp_iniciar = self.client.post(f"/limpieza/iniciar/{tarea_id}", follow_redirects=False)
         self.assertEqual(resp_iniciar.status_code, 302)
         self.assert_contiene_flash("No puedes iniciar una tarea que no tienes asignada")
 
-        resp_completar = self.client.get(f"/limpieza/completar/{tarea_id}", follow_redirects=False)
+        resp_completar = self.client.post(f"/limpieza/completar/{tarea_id}", follow_redirects=False)
         self.assertEqual(resp_completar.status_code, 302)
         self.assert_contiene_flash("No puedes completar una tarea que no tienes asignada")

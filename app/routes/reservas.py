@@ -202,7 +202,7 @@ def cambiar_estado(id):
         
     return redirect(url_for('reservas.index'))
 
-@bp.route('/mantenimiento/<int:id>')
+@bp.route('/mantenimiento/<int:id>', methods=['POST'])
 @login_required
 @requiere_permiso('actualizar_habitaciones')
 def mantenimiento(id):
@@ -212,12 +212,14 @@ def mantenimiento(id):
     flash(_('Habitación %(numero)s puesta en mantenimiento.') % {'numero': reserva.habitacion.numeroHabitacion}, 'warning')
     return redirect(url_for('reservas.index'))
 
-@bp.route('/cancelar/<int:id>')
+@bp.route('/cancelar/<int:id>', methods=['POST'])
 @login_required
 def cancelar(id):
     reserva = Reserva.query.get_or_404(id)
-    
-    if current_user.rol == 'cliente' and reserva.cedulaCliente != current_user.cedula:
+
+    # Solo el cliente dueño de la reserva o el personal de recepción/administración puede cancelar
+    es_duenio = current_user.rol == 'cliente' and reserva.cedulaCliente == current_user.cedula
+    if not (es_duenio or current_user.rol in ('administrador', 'recepcionista')):
         flash(_('No tienes permiso para cancelar esta reserva'), 'error')
         return redirect(url_for('reservas.index'))
     

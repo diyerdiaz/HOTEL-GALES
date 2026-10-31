@@ -250,7 +250,7 @@ class TestReservas(HotelTestCase):
         res_id = self.crear_reserva(16009, hab_id, estado="confirmada")
 
         self.iniciar_sesion("recep.mant_res")
-        resp = self.client.get(f"/reservas/mantenimiento/{res_id}", follow_redirects=False)
+        resp = self.client.post(f"/reservas/mantenimiento/{res_id}", follow_redirects=False)
         self.assertEqual(resp.status_code, 302)
 
         with self.app.app_context():
@@ -264,7 +264,7 @@ class TestReservas(HotelTestCase):
         res_id = self.crear_reserva(16010, hab_id, estado="pendiente", crear_factura_y_pago=True)
 
         self.iniciar_sesion("cliente.cancela_suya")
-        resp = self.client.get(f"/reservas/cancelar/{res_id}", follow_redirects=False)
+        resp = self.client.post(f"/reservas/cancelar/{res_id}", follow_redirects=False)
         self.assertEqual(resp.status_code, 302)
 
         with self.app.app_context():
@@ -282,6 +282,6 @@ class TestReservas(HotelTestCase):
         res_id = self.crear_reserva(16012, hab_id, estado="pendiente")
 
         self.iniciar_sesion("cliente.intruso")
-        resp = self.client.get(f"/reservas/cancelar/{res_id}", follow_redirects=False)
+        resp = self.client.post(f"/reservas/cancelar/{res_id}", follow_redirects=False)
         self.assertEqual(resp.status_code, 302)
         self.assert_contiene_flash("No tienes permiso")

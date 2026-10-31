@@ -39,7 +39,7 @@ def index():
                            search=search,
                            fecha=fecha)
 
-@bp.route('/cambiar-estado/<int:id>/<string:estado>')
+@bp.route('/cambiar-estado/<int:id>/<string:estado>', methods=['POST'])
 @login_required
 @requiere_rol('administrador', 'recepcionista')
 def cambiar_estado(id, estado):

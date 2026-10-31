@@ -111,7 +111,6 @@ class TestSeguridad(HotelTestCase):
             self.assertIsNotNone(usuario)
             self.assertEqual(usuario.rol, "cliente")
 
-    @unittest.expectedFailure
     def test_09_perfil_rechaza_nombre_de_usuario_invalido(self):
         usuario_id = self.crear_usuario("perfil.invalido", cedula=15003)
         self.iniciar_sesion("perfil.invalido")
@@ -125,7 +124,6 @@ class TestSeguridad(HotelTestCase):
         with self.app.app_context():
             self.assertEqual(User.query.get(usuario_id).usuario, "perfil.invalido")
 
-    @unittest.expectedFailure
     def test_10_perfil_rechaza_correo_ya_registrado(self):
         self.crear_cliente(15004, email="ocupado@example.com")
         usuario_id = self.crear_usuario(
@@ -144,7 +142,6 @@ class TestSeguridad(HotelTestCase):
         with self.app.app_context():
             self.assertEqual(Cliente.query.get(15005).email, "propio@example.com")
 
-    @unittest.expectedFailure
     def test_11_perfil_rechaza_telefono_invalido(self):
         usuario_id = self.crear_usuario(
             "perfil.telefono", cedula=15006, telefono="3001234567"

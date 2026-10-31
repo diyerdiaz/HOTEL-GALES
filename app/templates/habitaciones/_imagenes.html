@@ -1,0 +1,119 @@
+{# Selector de imágenes de la habitación (máx. 3). Recibe `hab` opcional para mostrar las imágenes actuales. #}
+<div class="col-12">
+  <label class="form-label fw-bold">{{ _('Imágenes de la Habitación') }} <small class="text-muted">{{ _('(JPG, PNG o WEBP)') }}</small></label>
+
+  <div id="galeriaImagenes" class="d-flex flex-wrap gap-3 mb-3">
+    {% if hab %}
+    {% for n in range(1, 4) %}
+    {% set actual = hab['imagen' ~ n] %}
+    {% if actual %}
+    <div class="position-relative imagen-item" data-existente="{{ n }}">
+      <img src="{{ url_for('static', filename='uploads/habitaciones/' ~ actual) }}" class="rounded-3 shadow-sm" style="width: 150px; height: 110px; object-fit: cover;" alt="">
+      <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 m-1 lh-1 px-2 py-1" title="{{ _('Quitar') }}" onclick="quitarExistente(this, {{ n }})">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div id="eliminarImagenes"></div>
+  <input type="file" id="selectorImagenes" class="d-none" accept=".jpg,.jpeg,.png,.webp" multiple>
+  <input type="file" id="inputImagenes" name="imagenes" class="d-none" multiple>
+
+  <div class="d-flex align-items-center gap-3">
+    <button type="button" id="btnAgregarImagenes" class="btn px-4 fw-semibold" style="border: 1px dashed #c5a059; color: #c5a059;" onclick="document.getElementById('selectorImagenes').click()">
+      <i class="bi bi-images me-1"></i> {{ _('Agregar imágenes') }}
+    </button>
+    <span class="text-muted small">{{ _('Máximo 3') }} · <span id="contadorImagenes">0</span>/3</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  const MAX_IMAGENES = 3;
+  const galeria = document.getElementById('galeriaImagenes');
+  const selector = document.getElementById('selectorImagenes');
+  const input = document.getElementById('inputImagenes');
+  const boton = document.getElementById('btnAgregarImagenes');
+  const contador = document.getElementById('contadorImagenes');
+  let nuevas = [];
+
+  function totalImagenes() {
+    return galeria.querySelectorAll('.imagen-item').length;
+  }
+
+  function actualizar() {
+    const dt = new DataTransfer();
+    nuevas.forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    const total = totalImagenes();
+    contador.textContent = total;
+    boton.disabled = total >= MAX_IMAGENES;
+  }
+
+  function agregarMiniatura(archivo) {
+    const item = document.createElement('div');
+    item.className = 'position-relative imagen-item';
+    item.innerHTML = `
+      <img class="rounded-3 shadow-sm" style="width: 150px; height: 110px; object-fit: cover;" alt="">
+      <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 m-1 lh-1 px-2 py-1" title="{{ _('Quitar') }}">
+        <i class="bi bi-x-lg"></i>
+      </button>`;
+    const quitar = () => {
+      nuevas = nuevas.filter(f => f !== archivo);
+      item.remove();
+      actualizar();
+    };
+    const img = item.querySelector('img');
+    // Si el archivo está vacío o dañado, el navegador no puede mostrarlo
+    img.onerror = () => {
+      quitar();
+      avisar('{{ _('No se pudo leer la imagen. Puede estar dañada o vacía:') }} ' + archivo.name);
+    };
+    img.src = URL.createObjectURL(archivo);
+    item.querySelector('button').onclick = quitar;
+    galeria.appendChild(item);
+  }
+
+  function avisar(texto) {
+    Swal.fire({
+      icon: 'warning',
+      title: '{{ _('Atención') }}',
+      text: texto,
+      confirmButtonColor: '#d4af37'
+    });
+  }
+
+  selector.addEventListener('change', () => {
+    const elegidas = Array.from(selector.files);
+    const vacias = elegidas.filter(f => f.size === 0);
+    const validas = elegidas.filter(f => f.size > 0);
+    const disponibles = MAX_IMAGENES - totalImagenes();
+    validas.slice(0, disponibles).forEach(f => {
+      nuevas.push(f);
+      agregarMiniatura(f);
+    });
+    if (vacias.length) {
+      avisar('{{ _('No se pudo leer la imagen. Puede estar dañada o vacía:') }} ' + vacias.map(f => f.name).join(', '));
+    } else if (validas.length > disponibles) {
+      avisar('{{ _('Solo puedes agregar máximo 3 imágenes por habitación') }}');
+    }
+    selector.value = '';
+    actualizar();
+  });
+
+  window.quitarExistente = function (btn, n) {
+    const oculto = document.createElement('input');
+    oculto.type = 'hidden';
+    oculto.name = 'eliminar_imagen' + n;
+    oculto.value = '1';
+    document.getElementById('eliminarImagenes').appendChild(oculto);
+    btn.closest('.imagen-item').remove();
+    actualizar();
+  };
+
+  actualizar();
+})();
+</script>

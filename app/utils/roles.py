@@ -48,6 +48,7 @@ PERMISOS_ROL = {
         'crear_habitacion',
         'editar_habitacion',
         'eliminar_habitacion',
+        'actualizar_habitaciones',
         'ver_tareas_limpieza',
         'gestionar_tareas_limpieza'
     ],

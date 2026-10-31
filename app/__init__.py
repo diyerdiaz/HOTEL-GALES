@@ -2,16 +2,22 @@ from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_babel import Babel, gettext as _
+from flask_wtf.csrf import CSRFProtect, CSRFError
+from markupsafe import escape
+from werkzeug.exceptions import HTTPException
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 babel = Babel()
+csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)    
     app.config.from_object('config.Config')
 
     db.init_app(app)
+    # Protección CSRF: todo formulario POST debe incluir el token de la sesión
+    csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
@@ -111,9 +117,31 @@ def create_app():
         db.session.rollback()
         return "<h1>500 - " + _('Error Interno del Servidor') + "</h1><p>" + _('Ha ocurrido un problema inesperado. Por favor, inténtalo más tarde.') + "</p><a href='/'>" + _('Volver al inicio') + "</a>", 500
 
+    @app.errorhandler(CSRFError)
+    def csrf_error(e):
+        return "<h1>400 - " + _('Solicitud inválida') + "</h1><p>" + _('El formulario expiró o no es válido. Recarga la página e inténtalo de nuevo.') + "</p><a href='/'>" + _('Volver al inicio') + "</a>", 400
+
+    @app.errorhandler(413)
+    def archivo_muy_grande(e):
+        return "<h1>413 - " + _('Archivo demasiado grande') + "</h1><p>" + _('Las imágenes no pueden superar los 16 MB en total.') + "</p><a href='javascript:history.back()'>" + _('Volver') + "</a>", 413
+
     @app.errorhandler(Exception)
     def handle_exception(e):
+        # Los errores HTTP (404, 405, 403...) conservan su código original
+        if isinstance(e, HTTPException):
+            return e
         db.session.rollback()
-        return f"<h1>" + _('Error Inesperado') + f"</h1><p>" + _('La aplicación pudo recuperarse de un error') + f": {str(e)}</p><a href='/'>" + _('Volver al inicio') + "</a>", 500
+        # El detalle técnico va al registro del servidor, nunca a la página
+        app.logger.exception(e)
+        return "<h1>" + str(escape(_('Error Inesperado'))) + "</h1><p>" + str(escape(_('Ha ocurrido un problema inesperado. Por favor, inténtalo más tarde.'))) + "</p><a href='/'>" + str(escape(_('Volver al inicio'))) + "</a>", 500
+
+    @app.after_request
+    def cabeceras_de_seguridad(response):
+        # Evita que la app se cargue dentro de un iframe de otro sitio (clickjacking)
+        response.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
+        # Evita que el navegador interprete archivos con un tipo distinto al declarado
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+        return response
         
     return app

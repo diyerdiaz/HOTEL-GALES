@@ -19,6 +19,22 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
+        /* Tarjeta con la primera imagen de la habitación de fondo */
+        .room-card-imagen {
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+        }
+        .room-card-imagen .text-primary {
+            color: #fff !important;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+        }
+        .room-card-imagen h4.text-primary {
+            color: #9cc7ff !important;
+        }
+        .room-card-imagen .text-muted {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
         .filter-card {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px);
@@ -45,12 +61,12 @@
         <div class="card filter-card mb-4 shadow">
             <div class="card-body">
                 <h5 class="card-title mb-3"><i class="bi bi-funnel"></i> {{ _('Filtrar Habitaciones') }}</h5>
-                <form action="{{ url_for('habitaciones.publica') }}" method="GET" class="row g-3">
-                    <div class="col-md-3">
+                <form action="{{ url_for('habitaciones.publica') }}" method="GET" class="row g-2 g-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small">{{ _('Buscar por número') }}</label>
                         <input type="text" name="busqueda" class="form-control form-control-sm" value="{{ busqueda }}" placeholder="{{ _('Número') }}">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small">{{ _('Tipo de habitación') }}</label>
                         <select name="tipo" class="form-select form-select-sm">
                             <option value="">{{ _('Todos') }}</option>
@@ -61,15 +77,15 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Precio mínimo') }}</label>
                         <input type="number" name="precio_min" class="form-control form-control-sm" value="{{ precio_min }}" placeholder="{{ _('Min') }}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Precio máximo') }}</label>
                         <input type="number" name="precio_max" class="form-control form-control-sm" value="{{ precio_max }}" placeholder="{{ _('Max') }}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Estado') }}</label>
                         <select name="estado" class="form-select form-select-sm">
                             <option value="disponible" {% if estado == 'disponible' %}selected{% endif %}>{{ _('Disponible') }}</option>
@@ -95,7 +111,9 @@
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for hab in habitaciones %}
             <div class="col">
-                <div class="card room-card h-100 border-0 shadow">
+                {% set portada = hab.imagenes[0] if hab.imagenes else None %}
+                <div class="card room-card h-100 border-0 shadow {% if portada %}room-card-imagen{% endif %}"
+                     {% if portada %}style="background-image: linear-gradient(180deg, rgba(8, 14, 28, 0.5) 0%, rgba(8, 14, 28, 0.75) 55%, rgba(8, 14, 28, 0.9) 100%), url('{{ url_for('static', filename='uploads/habitaciones/' ~ portada) }}');"{% endif %}>
                     <div class="card-body text-center">
                         <h2 class="fw-bold text-primary">{{ hab.numeroHabitacion }}</h2>
                         <p class="text-muted mb-2">{{ hab.tipo.nombreTipo }}</p>

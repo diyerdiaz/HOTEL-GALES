@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}Hotel Gales{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -243,6 +244,26 @@
                 langDropdown.querySelector('.chevron').style.transform = 'rotate(0deg)';
             });
         }
+    </script>
+    <script>
+        // Protección CSRF: agrega el token de la sesión a todos los formularios POST
+        (function () {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            function agregarToken(form) {
+                if ((form.method || '').toLowerCase() === 'post' && !form.querySelector('input[name="csrf_token"]')) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'csrf_token';
+                    input.value = token;
+                    form.appendChild(input);
+                }
+            }
+            document.querySelectorAll('form').forEach(agregarToken);
+            // Formularios agregados después de cargar la página
+            document.addEventListener('submit', e => agregarToken(e.target), true);
+            const enviar = HTMLFormElement.prototype.submit;
+            HTMLFormElement.prototype.submit = function () { agregarToken(this); return enviar.call(this); };
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

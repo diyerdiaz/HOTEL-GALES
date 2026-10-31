@@ -393,9 +393,18 @@ El sistema crea automáticamente un usuario administrador en el primer inicio. C
 | `DB_HOST` | — | Host PostgreSQL |
 | `DB_PORT` | 5432 | Puerto |
 | `DB_NAME` | — | Nombre BD |
-| `SECRET_KEY` | `clave-por-defecto-insegura` | Clave secreta Flask |
+| `SECRET_KEY` | aleatoria en cada arranque | Clave secreta Flask (defínela en producción) |
 | `ADMIN_USERNAME` | `admin` | Admin inicial |
 | `ADMIN_PASSWORD` | `hotelgales#` | Contraseña admin |
+| `COOKIE_SECURE` | `false` | `true` si el sitio usa HTTPS |
+| `URL_PUBLICA` | — | Dirección pública del sitio para los enlaces de los correos (ej. `https://hotelgales.com`) |
+| `MAIL_SERVER` | — | Servidor SMTP. Vacío = no se envían correos |
+| `MAIL_PORT` | `587` | Puerto SMTP |
+| `MAIL_USE_TLS` / `MAIL_USE_SSL` | `true` / `false` | Cifrado de la conexión SMTP |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | — | Credenciales SMTP (en Gmail, una contraseña de aplicación) |
+| `MAIL_SENDER` / `MAIL_SENDER_NAME` | `MAIL_USERNAME` / `Hotel Gales` | Remitente de los correos |
+
+Hay un ejemplo completo en [`.env.example`](.env.example).
 
 ---
 

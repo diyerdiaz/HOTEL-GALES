@@ -56,7 +56,7 @@ def asignar_tarea():
     personal = User.query.filter_by(rol='servicio_limpieza').all()
     return render_template('limpieza/asignar.html', habitaciones=habitaciones, personal=personal)
 
-@bp.route('/completar/<int:id>')
+@bp.route('/completar/<int:id>', methods=['POST'])
 @login_required
 @requiere_permiso('ver_tareas_limpieza')
 def completar_tarea(id):
@@ -80,7 +80,7 @@ def completar_tarea(id):
     flash(_('Tarea de la habitación %(numero)s marcada como completada.') % {'numero': tarea.habitacion.numeroHabitacion}, 'success')
     return redirect(url_for('limpieza.mis_tareas'))
 
-@bp.route('/iniciar/<int:id>')
+@bp.route('/iniciar/<int:id>', methods=['POST'])
 @login_required
 @requiere_permiso('ver_tareas_limpieza')
 def iniciar_tarea(id):

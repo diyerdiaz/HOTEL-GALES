@@ -135,7 +135,7 @@ class TestMantenimiento(HotelTestCase):
         staff_id = self.crear_usuario("limp.cambio", rol="servicio_limpieza")
 
         self.iniciar_sesion("recep.cambia_estado")
-        respuesta = self.client.get(f"/mantenimientos/cambiar-estado/{staff_id}/ocupado", follow_redirects=False)
+        respuesta = self.client.post(f"/mantenimientos/cambiar-estado/{staff_id}/ocupado", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(respuesta.headers["Location"], "/mantenimientos/")
 
@@ -149,7 +149,7 @@ class TestMantenimiento(HotelTestCase):
         cliente_id = self.crear_usuario("cliente.no_staff", rol="cliente", cedula=18003)
 
         self.iniciar_sesion("admin.valida_staff")
-        respuesta = self.client.get(f"/mantenimientos/cambiar-estado/{cliente_id}/ocupado", follow_redirects=False)
+        respuesta = self.client.post(f"/mantenimientos/cambiar-estado/{cliente_id}/ocupado", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
         self.assert_contiene_flash("Usuario no es personal de limpieza")
 
@@ -159,6 +159,6 @@ class TestMantenimiento(HotelTestCase):
         staff_id = self.crear_usuario("limp.invalido", rol="servicio_limpieza")
 
         self.iniciar_sesion("admin.valida_estado")
-        respuesta = self.client.get(f"/mantenimientos/cambiar-estado/{staff_id}/estado_falso", follow_redirects=False)
+        respuesta = self.client.post(f"/mantenimientos/cambiar-estado/{staff_id}/estado_falso", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
         self.assert_contiene_flash("Estado inválido")
