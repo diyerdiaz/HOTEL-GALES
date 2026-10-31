@@ -131,6 +131,16 @@ class TestVulnerabilidades(HotelTestCase):
             self.assertEqual(Habitacion.query.get(hab_id).estadoHabitacion, "disponible")
         self.assert_contiene_flash("Estado inválido")
 
+    def test_10b_administrador_puede_cambiar_estado_de_habitacion(self):
+        self.crear_usuario("admin.cambia.estado", rol="administrador")
+        self.iniciar_sesion("admin.cambia.estado")
+        hab_id = self.crear_habitacion(numero=707, estado="disponible")
+
+        self.client.post(f"/habitaciones/estado/{hab_id}/mantenimiento")
+
+        with self.app.app_context():
+            self.assertEqual(Habitacion.query.get(hab_id).estadoHabitacion, "mantenimiento")
+
     def test_11_limpieza_no_puede_marcar_habitacion_ocupada(self):
         self.crear_usuario("limpieza.estado", rol="servicio_limpieza")
         self.iniciar_sesion("limpieza.estado")
