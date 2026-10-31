@@ -20,14 +20,23 @@ def _carpeta_imagenes():
     return carpeta
 
 
-def _validar_imagenes():
-    """Devuelve un mensaje de error si algún archivo no es una imagen permitida"""
-    for campo in CAMPOS_IMAGEN:
-        archivo = request.files.get(campo)
-        if archivo and archivo.filename:
-            ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
-            if ext not in EXTENSIONES_IMAGEN:
-                return _('Solo se permiten imágenes JPG, PNG o WEBP')
+def _imagenes_enviadas():
+    return [f for f in request.files.getlist('imagenes') if f and f.filename]
+
+
+def _validar_imagenes(hab=None):
+    """Devuelve un mensaje de error si algún archivo no es válido o se superan las 3 imágenes"""
+    for archivo in _imagenes_enviadas():
+        ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
+        if ext not in EXTENSIONES_IMAGEN:
+            return _('Solo se permiten imágenes JPG, PNG o WEBP')
+
+    conservadas = 0
+    if hab:
+        conservadas = sum(1 for campo in CAMPOS_IMAGEN
+                          if getattr(hab, campo) and not request.form.get(f'eliminar_{campo}'))
+    if conservadas + len(_imagenes_enviadas()) > len(CAMPOS_IMAGEN):
+        return _('Solo puedes agregar máximo 3 imágenes por habitación')
     return None
 
 
@@ -39,19 +48,18 @@ def _borrar_imagen(nombre):
 
 
 def _guardar_imagenes(hab):
-    """Guarda las imágenes enviadas en el formulario y reemplaza/elimina las anteriores"""
+    """Elimina las imágenes marcadas y ubica las nuevas en los espacios libres"""
     for campo in CAMPOS_IMAGEN:
         if request.form.get(f'eliminar_{campo}'):
             _borrar_imagen(getattr(hab, campo))
             setattr(hab, campo, None)
 
-        archivo = request.files.get(campo)
-        if archivo and archivo.filename:
-            ext = archivo.filename.rsplit('.', 1)[-1].lower()
-            nombre = f"{uuid.uuid4().hex}.{ext}"
-            archivo.save(os.path.join(_carpeta_imagenes(), nombre))
-            _borrar_imagen(getattr(hab, campo))
-            setattr(hab, campo, nombre)
+    libres = [campo for campo in CAMPOS_IMAGEN if not getattr(hab, campo)]
+    for campo, archivo in zip(libres, _imagenes_enviadas()):
+        ext = archivo.filename.rsplit('.', 1)[-1].lower()
+        nombre = f"{uuid.uuid4().hex}.{ext}"
+        archivo.save(os.path.join(_carpeta_imagenes(), nombre))
+        setattr(hab, campo, nombre)
 
 @bp.route('/publica')
 def publica():
@@ -266,7 +274,7 @@ def editar(id):
             flash(_('El precio no puede tener más de 7 dígitos'), 'error')
             return redirect(url_for('habitaciones.editar', id=id))
 
-        error_imagen = _validar_imagenes()
+        error_imagen = _validar_imagenes(hab)
         if error_imagen:
             flash(error_imagen, 'error')
             return redirect(url_for('habitaciones.editar', id=id))
