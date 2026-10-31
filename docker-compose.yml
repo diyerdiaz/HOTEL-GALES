@@ -17,6 +17,16 @@ services:
       - DB_NAME=${DB_NAME}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - COOKIE_SECURE=${COOKIE_SECURE}
+      - URL_PUBLICA=${URL_PUBLICA}
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USE_TLS=${MAIL_USE_TLS}
+      - MAIL_USE_SSL=${MAIL_USE_SSL}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_SENDER=${MAIL_SENDER}
+      - MAIL_SENDER_NAME=${MAIL_SENDER_NAME}
     restart: always
     networks:
       - coolify
