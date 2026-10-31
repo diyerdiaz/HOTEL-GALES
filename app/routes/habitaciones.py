@@ -30,6 +30,11 @@ def _validar_imagenes(hab=None):
         ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
         if ext not in EXTENSIONES_IMAGEN:
             return _('Solo se permiten imágenes JPG, PNG o WEBP')
+        archivo.stream.seek(0, os.SEEK_END)
+        vacia = archivo.stream.tell() == 0
+        archivo.stream.seek(0)
+        if vacia:
+            return _('La imagen %(nombre)s está vacía o dañada', nombre=archivo.filename)
 
     conservadas = 0
     if hab:

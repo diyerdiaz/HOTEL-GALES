@@ -61,29 +61,44 @@
       <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 m-1 lh-1 px-2 py-1" title="{{ _('Quitar') }}">
         <i class="bi bi-x-lg"></i>
       </button>`;
-    item.querySelector('img').src = URL.createObjectURL(archivo);
-    item.querySelector('button').onclick = () => {
+    const quitar = () => {
       nuevas = nuevas.filter(f => f !== archivo);
       item.remove();
       actualizar();
     };
+    const img = item.querySelector('img');
+    // Si el archivo está vacío o dañado, el navegador no puede mostrarlo
+    img.onerror = () => {
+      quitar();
+      avisar('{{ _('No se pudo leer la imagen. Puede estar dañada o vacía:') }} ' + archivo.name);
+    };
+    img.src = URL.createObjectURL(archivo);
+    item.querySelector('button').onclick = quitar;
     galeria.appendChild(item);
   }
 
+  function avisar(texto) {
+    Swal.fire({
+      icon: 'warning',
+      title: '{{ _('Atención') }}',
+      text: texto,
+      confirmButtonColor: '#d4af37'
+    });
+  }
+
   selector.addEventListener('change', () => {
-    const disponibles = MAX_IMAGENES - totalImagenes();
     const elegidas = Array.from(selector.files);
-    elegidas.slice(0, disponibles).forEach(f => {
+    const vacias = elegidas.filter(f => f.size === 0);
+    const validas = elegidas.filter(f => f.size > 0);
+    const disponibles = MAX_IMAGENES - totalImagenes();
+    validas.slice(0, disponibles).forEach(f => {
       nuevas.push(f);
       agregarMiniatura(f);
     });
-    if (elegidas.length > disponibles) {
-      Swal.fire({
-        icon: 'warning',
-        title: '{{ _('Atención') }}',
-        text: '{{ _('Solo puedes agregar máximo 3 imágenes por habitación') }}',
-        confirmButtonColor: '#d4af37'
-      });
+    if (vacias.length) {
+      avisar('{{ _('No se pudo leer la imagen. Puede estar dañada o vacía:') }} ' + vacias.map(f => f.name).join(', '));
+    } else if (validas.length > disponibles) {
+      avisar('{{ _('Solo puedes agregar máximo 3 imágenes por habitación') }}');
     }
     selector.value = '';
     actualizar();
