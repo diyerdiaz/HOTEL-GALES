@@ -2225,3 +2225,64 @@ body.dark-mode .sim-dropdown-item.active {
   .topbar .gap-2 { gap: 0.35rem !important; }
   .topbar .btn-premium-lang { padding-left: 0.5rem; padding-right: 0.5rem; }
 }
+
+/* =========================================================
+   CONTRASTE EN AMBOS TEMAS
+   Las reglas globales de modo oscuro vuelven blanco cualquier texto,
+   incluso sobre fondos claros (dorado, amarillo, celeste). Aquí se
+   devuelve el texto oscuro a esos botones y etiquetas.
+   ========================================================= */
+body.dark-mode .btn-warning,
+body.dark-mode .btn-warning *,
+body.dark-mode .btn-hotel,
+body.dark-mode .btn-hotel *,
+body.dark-mode .btn-gold,
+body.dark-mode .btn-gold *,
+body.dark-mode .badge.bg-warning:not([class*="bg-opacity"]),
+body.dark-mode .badge.bg-gold:not([class*="bg-opacity"]),
+body.dark-mode .badge.bg-info:not([class*="bg-opacity"]) {
+    color: #0b192c !important;
+}
+.badge.bg-info:not([class*="bg-opacity"]) { color: #0b192c; }
+
+/* Bootstrap no trae bg-opacity-20: sin esto el fondo queda amarillo sólido */
+.bg-opacity-20 { --bs-bg-opacity: 0.2; }
+body:not(.dark-mode) .bg-opacity-20.text-warning { color: var(--hotel-gold-dark) !important; }
+
+/* Números de reservas pendientes y en curso del panel */
+body:not(.dark-mode) .content-area h2.text-warning { color: #b45309 !important; }
+body.dark-mode .text-info { color: #38bdf8 !important; }
+
+/* Botón azul real usado en los filtros de personal y mantenimiento */
+.btn-dark-royal {
+    background-color: var(--navy-900);
+    border-color: var(--navy-900);
+    color: #fff;
+}
+.btn-dark-royal:hover,
+.btn-dark-royal:focus {
+    background-color: var(--navy-800);
+    border-color: var(--navy-800);
+    color: #fff;
+}
+body.dark-mode .btn-dark-royal {
+    background-color: var(--navy-700);
+    border-color: var(--navy-700);
+}
+
+/* Botones celestes con borde: en modo claro el celeste casi no se ve sobre blanco */
+body:not(.dark-mode) .btn-outline-info {
+    --bs-btn-color: #0369a1;
+    --bs-btn-border-color: #0369a1;
+    --bs-btn-hover-bg: #0369a1;
+    --bs-btn-hover-border-color: #0369a1;
+    --bs-btn-hover-color: #fff;
+}
+
+/* Botón "Agregar imágenes" */
+.btn-agregar-imagenes {
+    border: 1px dashed var(--hotel-gold);
+    color: var(--hotel-gold-dark);
+}
+body.dark-mode .btn-agregar-imagenes { color: var(--hotel-gold) !important; }
+.btn-agregar-imagenes:hover { background: var(--hotel-gold-glow); color: var(--hotel-gold-dark); }

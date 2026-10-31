@@ -23,7 +23,7 @@
   <input type="file" id="inputImagenes" name="imagenes" class="d-none" multiple>
 
   <div class="d-flex align-items-center gap-3">
-    <button type="button" id="btnAgregarImagenes" class="btn px-4 fw-semibold" style="border: 1px dashed #c5a059; color: #c5a059;" onclick="document.getElementById('selectorImagenes').click()">
+    <button type="button" id="btnAgregarImagenes" class="btn btn-agregar-imagenes px-4 fw-semibold" onclick="document.getElementById('selectorImagenes').click()">
       <i class="bi bi-images me-1"></i> {{ _('Agregar imágenes') }}
     </button>
     <span class="text-muted small">{{ _('Máximo 3') }} · <span id="contadorImagenes">0</span>/3</span>
