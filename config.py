@@ -52,6 +52,23 @@ class Config:
     # Tamaño máximo de una petición (3 imágenes de habitación + formulario)
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
+    # Correo saliente (SMTP). Si MAIL_SERVER está vacío no se envían correos.
+    # Ejemplo Gmail: MAIL_SERVER=smtp.gmail.com, MAIL_PORT=587, MAIL_USE_TLS=true y una
+    # "contraseña de aplicación" en MAIL_PASSWORD (no la contraseña normal de la cuenta).
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', '')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'false').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', '')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
+    MAIL_SENDER = os.environ.get('MAIL_SENDER') or MAIL_USERNAME or 'no-reply@hotelgales.local'
+    MAIL_SENDER_NAME = os.environ.get('MAIL_SENDER_NAME', 'Hotel Gales')
+    MAIL_TIMEOUT = int(os.environ.get('MAIL_TIMEOUT', '15'))
+
+    # Dirección pública del sitio para los enlaces de los correos (ej: https://hotelgales.com).
+    # Si se deja vacía se usa la dirección con la que se hizo la solicitud.
+    URL_PUBLICA = os.environ.get('URL_PUBLICA', '').rstrip('/')
+
     # Solo en desarrollo: mostrar en pantalla el token de recuperación de contraseña.
     # En producción debe ser false, o cualquiera que conozca un correo podría cambiar su contraseña.
     MOSTRAR_TOKEN_RECUPERACION = os.environ.get('MOSTRAR_TOKEN_RECUPERACION', 'false').lower() == 'true'

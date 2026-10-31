@@ -9,8 +9,21 @@ from app import db
 from app.models.users import User
 from app.utils.roles import ROLES, rol_label
 from app.utils.decorators import requiere_admin
+from app.utils.correo import correo_configurado, enviar_correo
 
 bp = Blueprint('auth', __name__)
+
+
+def _url_publica(endpoint, **valores):
+    """URL absoluta para enlaces enviados por correo.
+
+    Usa URL_PUBLICA si está configurada: así el enlace no depende de la cabecera Host
+    de la petición, que un atacante podría falsificar para recibir el token.
+    """
+    base = current_app.config.get('URL_PUBLICA')
+    if base:
+        return base + url_for(endpoint, **valores)
+    return url_for(endpoint, _external=True, **valores)
 
 @bp.route('/', methods=['GET', 'POST'])
 def login():
@@ -366,8 +379,8 @@ def recuperar_contrasena():
         
         # Buscar usuario por email a través del cliente
         from app.models.cliente import Cliente
-        cliente = Cliente.query.filter_by(email=email.lower()).first()
-        
+        cliente = Cliente.query.filter_by(email=email.strip().lower()).first()
+
         if cliente:
             user = User.query.filter_by(cedula=cliente.cedula).first()
             if user:
@@ -377,14 +390,25 @@ def recuperar_contrasena():
 
                 # Solo en desarrollo se lleva al usuario directo al formulario con el token.
                 # En producción eso permitiría a cualquiera cambiar la contraseña de otra
-                # persona conociendo su correo: el enlace queda en el registro del servidor
-                # hasta que se configure el envío de correos.
+                # persona conociendo su correo: el enlace solo se envía a su correo.
                 if current_app.config.get('MOSTRAR_TOKEN_RECUPERACION'):
                     flash(_('Token de recuperación (desarrollo): %(token)s') % {'token': token}, 'info')
                     return redirect(url_for('auth.restablecer_contrasena', token=token))
-                current_app.logger.warning(
-                    "Enlace de recuperación para el usuario %s: %s",
-                    user.usuario, url_for('auth.restablecer_contrasena', token=token, _external=True))
+
+                enlace = _url_publica('auth.restablecer_contrasena', token=token)
+                if correo_configurado():
+                    datos = {'nombre': cliente.nombre, 'usuario': user.usuario, 'enlace': enlace}
+                    enviar_correo(
+                        cliente.email,
+                        _('Recupera tu contraseña - Hotel Gales'),
+                        render_template('emails/recuperar_contrasena.txt', **datos),
+                        render_template('emails/recuperar_contrasena.html', **datos),
+                    )
+                else:
+                    # Sin servidor de correo configurado, el enlace queda en el registro del servidor
+                    current_app.logger.warning(
+                        "Correo no configurado (MAIL_SERVER). Enlace de recuperación para el usuario %s: %s",
+                        user.usuario, enlace)
         
         # Por seguridad, siempre mostrar el mismo mensaje incluso si el email no existe
         flash(_('Si el correo está registrado, recibirás instrucciones para recuperar tu contraseña'), 'info')
