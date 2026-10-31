@@ -55,30 +55,7 @@
         </select>
       </div>
 
-      <div class="col-12">
-        <label class="form-label fw-bold">{{ _('Imágenes de la Habitación') }} <small class="text-muted">{{ _('(Máx. 3 · JPG, PNG o WEBP)') }}</small></label>
-        <div class="row g-3">
-          {% for n in range(1, 4) %}
-          {% set actual = hab['imagen' ~ n] %}
-          <div class="col-md-4">
-            <div class="border rounded-3 p-2 h-100 d-flex flex-column gap-2">
-              <img id="preview_imagen{{ n }}" class="rounded-2 w-100 {% if not actual %}d-none{% endif %}" style="height: 140px; object-fit: cover;"
-                {% if actual %}src="{{ url_for('static', filename='uploads/habitaciones/' ~ actual) }}"{% endif %} alt="">
-              <div id="placeholder_imagen{{ n }}" class="rounded-2 align-items-center justify-content-center text-muted {% if actual %}d-none{% else %}d-flex{% endif %}" style="height: 140px; border: 1px dashed rgba(128,128,128,.4);">
-                <i class="bi bi-image fs-2"></i>
-              </div>
-              <input type="file" name="imagen{{ n }}" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp" onchange="previsualizarImagen(this, {{ n }})">
-              {% if actual %}
-              <div class="form-check small">
-                <input class="form-check-input" type="checkbox" name="eliminar_imagen{{ n }}" id="eliminar_imagen{{ n }}" value="1">
-                <label class="form-check-label" for="eliminar_imagen{{ n }}">{{ _('Eliminar esta imagen') }}</label>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
+      {% include 'habitaciones/_imagenes.html' %}
 
       <div class="col-12 mt-4">
         <hr>
@@ -110,15 +87,5 @@
       });
     }
   }
-function previsualizarImagen(input, n) {
-  const preview = document.getElementById('preview_imagen' + n);
-  const placeholder = document.getElementById('placeholder_imagen' + n);
-  if (input.files && input.files[0]) {
-    preview.src = URL.createObjectURL(input.files[0]);
-    preview.classList.remove('d-none');
-    placeholder.classList.add('d-none');
-    placeholder.classList.remove('d-flex');
-  }
-}
 </script>
 {% endblock %}
