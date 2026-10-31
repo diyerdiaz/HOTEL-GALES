@@ -121,8 +121,8 @@ class TestVulnerabilidades(HotelTestCase):
     # Control de acceso
     # ------------------------------------------------------------------
     def test_10_estado_de_habitacion_invalido_es_rechazado(self):
-        self.crear_usuario("admin.estado", rol="administrador")
-        self.iniciar_sesion("admin.estado")
+        self.crear_usuario("recepcion.estado", rol="recepcionista")
+        self.iniciar_sesion("recepcion.estado")
         hab_id = self.crear_habitacion(numero=702)
 
         self.client.post(f"/habitaciones/estado/{hab_id}/<script>hackeado")
