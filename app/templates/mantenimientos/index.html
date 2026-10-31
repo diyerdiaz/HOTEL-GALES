@@ -112,10 +112,11 @@ body.dark-mode .btn-outline-dark-royal:hover {
             </div>
             <div class="staff-card-footer p-3 text-center">
                 {% if staff.estado_limpieza != 'disponible' %}
-                <a href="{{ url_for('mantenimientos.cambiar_estado', id=staff.id, estado='disponible') }}"
-                   class="btn btn-success btn-sm fw-bold w-100 mb-2">
-                    <i class="bi bi-check-circle me-1"></i>{{ _('Marcar Disponible') }}
-                </a>
+                                <form action="{{ url_for('mantenimientos.cambiar_estado', id=staff.id, estado='disponible') }}" method="POST">
+                    <button type="submit" class="btn btn-success btn-sm fw-bold w-100 mb-2">
+                        <i class="bi bi-check-circle me-1"></i>{{ _('Marcar Disponible') }}
+                    </button>
+                </form>
                 {% endif %}
                 <a href="{{ url_for('usuarios.ver_historial_limpieza', id=staff.id) }}" class="btn btn-outline-dark-royal btn-sm w-100 mb-2">
                     <i class="bi bi-clock-history me-1"></i>{{ _('Ver Historial') }}

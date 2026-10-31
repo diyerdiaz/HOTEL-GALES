@@ -1,3 +1,4 @@
+import os
 from app import create_app, db
 from app.models.users import User
 from werkzeug.security import generate_password_hash
@@ -29,4 +30,6 @@ with app.app_context():
         print("[!] La aplicación intentará continuar, pero algunas funciones pueden fallar.")
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=81, debug=True)
+    # El modo debug permite ejecutar código desde el navegador: solo se activa con FLASK_DEBUG=1
+    debug = os.environ.get('FLASK_DEBUG', '0').lower() in ('1', 'true')
+    app.run(host="0.0.0.0", port=81, debug=debug)

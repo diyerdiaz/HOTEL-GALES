@@ -87,7 +87,8 @@
                 </div>
 
 
-                <form method="post" action="{{ url_for('auth.register') }}" id="register-form">                    <!-- PASO 1: DATOS PERSONALES -->
+                <form method="post" action="{{ url_for('auth.register') }}" id="register-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">                    <!-- PASO 1: DATOS PERSONALES -->
                     <div id="step-1">
                         <div class="form-group">
                             <label for="cedula">{{ _('CÉDULA / ID') }}</label>

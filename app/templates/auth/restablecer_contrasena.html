@@ -71,6 +71,7 @@
                 <p class="subtitle">{{ _('Ingresa tu nueva contraseña') }}</p>
 
                 <form method="post" action="{{ url_for('auth.restablecer_contrasena', token=token) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label for="password">{{ _('NUEVA CONTRASEÑA') }}</label>
                         <input type="password" id="password" name="password" placeholder="{{ _('Mínimo 8 caracteres, 1 letra y 1 número') }}" required minlength="8">

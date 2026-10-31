@@ -132,10 +132,11 @@
             <!-- Card Actions -->
             <div class="pt-3 border-top d-flex flex-wrap align-items-center justify-content-center gap-2 mt-auto">
               {% if current_user.rol == 'servicio_limpieza' %}
-              <a href="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='disponible') }}" 
-                 class="btn btn-success w-100 fw-bold shadow-sm rounded-3">
-                 <i class="bi bi-stars me-1"></i> {{ _('Marcar Limpia') }}
-              </a>
+                            <form action="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='disponible') }}" method="POST" class="w-100">
+                <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm rounded-3">
+                  <i class="bi bi-stars me-1"></i> {{ _('Marcar Limpia') }}
+                </button>
+              </form>
               {% else %}
                   <a href="{{ url_for('reservas.nueva', habitacion_id=hab.idHabitacion) }}"
                      class="btn btn-sm btn-primary px-3 rounded-2 fw-semibold {% if hab.estadoHabitacion != 'disponible' or tiene_reserva_activa %}disabled opacity-50{% endif %}"
@@ -149,9 +150,9 @@
                       <i class="bi bi-sliders me-1"></i>{{ _('Estado') }}
                     </button>
                     <ul class="dropdown-menu shadow border-0">
-                      <li><a class="dropdown-item" href="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='disponible') }}"><i class="bi bi-check-circle text-success me-2"></i>{{ _('Disponible') }}</a></li>
-                      <li><a class="dropdown-item" href="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='ocupada') }}"><i class="bi bi-person-x text-danger me-2"></i>{{ _('Ocupada') }}</a></li>
-                      <li><a class="dropdown-item" href="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='mantenimiento') }}"><i class="bi bi-tools text-warning me-2"></i>{{ _('Mantenimiento') }}</a></li>
+                                            <li><form action="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='disponible') }}" method="POST"><button type="submit" class="dropdown-item"><i class="bi bi-check-circle text-success me-2"></i>{{ _('Disponible') }}</button></form></li>
+                      <li><form action="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='ocupada') }}" method="POST"><button type="submit" class="dropdown-item"><i class="bi bi-person-x text-danger me-2"></i>{{ _('Ocupada') }}</button></form></li>
+                      <li><form action="{{ url_for('habitaciones.cambiar_estado', id=hab.idHabitacion, nuevo_estado='mantenimiento') }}" method="POST"><button type="submit" class="dropdown-item"><i class="bi bi-tools text-warning me-2"></i>{{ _('Mantenimiento') }}</button></form></li>
                     </ul>
                   </div>
                   {% endif %}
@@ -163,12 +164,12 @@
                   {% endif %}
 
                   {% if current_user.tiene_permisos('eliminar_habitacion') %}
-                  <a href="{{ url_for('habitaciones.eliminar', id=hab.idHabitacion) }}" 
-                     class="btn btn-sm btn-outline-danger rounded-2" 
-                     title="{{ _('Eliminar') }}"
-                     onclick="return confirm('{{ _('¿Está seguro de eliminar la habitación') }} {{ hab.numeroHabitacion }}?')">
-                    <i class="bi bi-trash"></i>
-                  </a>
+                                    <form action="{{ url_for('habitaciones.eliminar', id=hab.idHabitacion) }}" method="POST" class="d-inline"
+                        onsubmit="return confirm('{{ _('¿Está seguro de eliminar la habitación') }} {{ hab.numeroHabitacion }}?')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-2" title="{{ _('Eliminar') }}">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
                   {% endif %}
               {% endif %}
             </div>

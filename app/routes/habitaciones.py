@@ -12,6 +12,7 @@ bp = Blueprint('habitaciones', __name__, url_prefix='/habitaciones')
 
 EXTENSIONES_IMAGEN = {'jpg', 'jpeg', 'png', 'webp'}
 CAMPOS_IMAGEN = ('imagen1', 'imagen2', 'imagen3')
+ESTADOS_HABITACION = ('disponible', 'ocupada', 'mantenimiento', 'limpieza')
 
 
 def _carpeta_imagenes():
@@ -293,7 +294,7 @@ def editar(id):
     tipos = TipoHabitacion.query.all()
     return render_template('habitaciones/editar.html', hab=hab, tipos=tipos)
 
-@bp.route('/eliminar/<int:id>')
+@bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required
 @requiere_permiso('eliminar_habitacion')
 def eliminar(id):
@@ -347,11 +348,21 @@ def detalle(id):
                           ya_comento=ya_comento,
                           tiene_reserva_activa=tiene_reserva_activa)
 
-@bp.route('/estado/<int:id>/<string:nuevo_estado>')
+@bp.route('/estado/<int:id>/<string:nuevo_estado>', methods=['POST'])
 @login_required
 @requiere_permiso('actualizar_habitaciones')
 def cambiar_estado(id, nuevo_estado):
     hab = Habitacion.query.get_or_404(id)
+
+    if nuevo_estado not in ESTADOS_HABITACION:
+        flash(_('Estado inválido.'), 'error')
+        return redirect(url_for('habitaciones.index'))
+
+    # El personal de limpieza solo puede marcar como disponible una habitación en limpieza
+    if current_user.rol == 'servicio_limpieza' and not (
+            nuevo_estado == 'disponible' and hab.estadoHabitacion == 'limpieza'):
+        flash(_('No tienes permiso para realizar esta acción'), 'error')
+        return redirect(url_for('habitaciones.index'))
     
     if current_user.rol == 'servicio_limpieza' and nuevo_estado == 'disponible' and hab.estadoHabitacion == 'limpieza':
         # Registrar automáticamente en el historial de limpieza sin requerir asignación manual

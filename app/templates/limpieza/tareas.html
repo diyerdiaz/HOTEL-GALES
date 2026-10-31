@@ -67,13 +67,17 @@
                 <div class="card-footer bg-transparent p-3 pt-0 border-top-0">
                     {% if current_user.rol == 'servicio_limpieza' %}
                         {% if tarea.estado == 'pendiente' %}
-                        <a href="{{ url_for('limpieza.iniciar_tarea', id=tarea.idTarea) }}" class="btn btn-dark w-100 py-2 rounded-3 fw-semibold">
-                            <i class="bi bi-play-fill me-1"></i>{{ _('Iniciar Limpieza') }}
-                        </a>
+                                                <form action="{{ url_for('limpieza.iniciar_tarea', id=tarea.idTarea) }}" method="POST">
+                            <button type="submit" class="btn btn-dark w-100 py-2 rounded-3 fw-semibold">
+                                <i class="bi bi-play-fill me-1"></i>{{ _('Iniciar Limpieza') }}
+                            </button>
+                        </form>
                         {% elif tarea.estado == 'en curso' %}
-                        <a href="{{ url_for('limpieza.completar_tarea', id=tarea.idTarea) }}" class="btn btn-success w-100 py-2 rounded-3 fw-semibold">
-                            <i class="bi bi-check-circle me-1"></i>{{ _('Marcar como Finalizado') }}
-                        </a>
+                                                <form action="{{ url_for('limpieza.completar_tarea', id=tarea.idTarea) }}" method="POST">
+                            <button type="submit" class="btn btn-success w-100 py-2 rounded-3 fw-semibold">
+                                <i class="bi bi-check-circle me-1"></i>{{ _('Marcar como Finalizado') }}
+                            </button>
+                        </form>
                         {% else %}
                         <button class="btn btn-outline-secondary w-100 py-2 rounded-3" disabled>
                             <i class="bi bi-check-all me-1"></i>{{ _('Tarea Completada') }}

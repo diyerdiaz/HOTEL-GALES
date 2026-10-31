@@ -1,7 +1,8 @@
 import qrcode
 import io
 import base64
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, abort
+from itsdangerous import URLSafeSerializer, BadSignature
 from flask_babel import gettext as _
 from flask_login import login_required, current_user
 from app import db
@@ -11,6 +12,15 @@ from app.models.cliente import Cliente
 from app.utils.decorators import requiere_permiso
 
 bp = Blueprint('facturas', __name__, url_prefix='/facturas')
+
+
+def _firmador():
+    # Firma el id de la factura con la SECRET_KEY: el enlace del QR no se puede adivinar
+    return URLSafeSerializer(current_app.config['SECRET_KEY'], salt='validar-factura')
+
+
+def token_validacion(factura_id):
+    return _firmador().dumps(factura_id)
 
 @bp.route('/')
 @login_required
@@ -52,7 +62,7 @@ def ver(id):
     if dias <= 0: dias = 1
 
     # Generar URL de validación absoluta
-    url_validacion = url_for('facturas.validar', id=factura.idFactura, _external=True)
+    url_validacion = url_for('facturas.validar', token=token_validacion(factura.idFactura), _external=True)
     
     # Generar QR en memoria
     qr = qrcode.QRCode(version=1, box_size=5, border=1)
@@ -66,8 +76,12 @@ def ver(id):
 
     return render_template('facturas/ver.html', factura=factura, dias=dias, qr_base64=qr_base64)
 
-@bp.route('/validar/<int:id>')
-def validar(id):
+@bp.route('/validar/<token>')
+def validar(token):
     """Ruta pública para verificar la autenticidad de una factura vía código QR"""
-    factura = Factura.query.get_or_404(id)
+    try:
+        factura_id = _firmador().loads(token)
+    except BadSignature:
+        abort(404)
+    factura = Factura.query.get_or_404(factura_id)
     return render_template('facturas/validar.html', factura=factura)

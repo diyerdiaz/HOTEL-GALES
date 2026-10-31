@@ -20,7 +20,6 @@ class Config:
             # Codificar la contraseña para evitar que los caracteres especiales rompan la URL
             encoded_pass = urllib.parse.quote_plus(db_pass)
             db_url = f"postgresql+psycopg2://{db_user}:{encoded_pass}@{db_host}:{db_port}/{db_name}"
-            print(f"DATABASE_URL: {db_url}", flush=True)
 
         else:
             import os
@@ -32,8 +31,30 @@ class Config:
             
     SQLALCHEMY_DATABASE_URI = db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # La SECRET_KEY es vital para la seguridad de las sesiones
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'clave-por-defecto-insegura'
+    # La SECRET_KEY es vital para la seguridad de las sesiones.
+    # Si no está definida se genera una aleatoria (las sesiones se cierran al reiniciar),
+    # nunca una clave fija conocida con la que se podrían falsificar sesiones.
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        import secrets
+        SECRET_KEY = secrets.token_hex(32)
+        print("[!] SECRET_KEY no está definida: se usará una clave temporal. Defínela en .env", flush=True)
+
+    # Cookies de sesión protegidas contra robo por JavaScript y envío desde otros sitios
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
+    # Activar en producción con HTTPS (COOKIE_SECURE=true en .env)
+    SESSION_COOKIE_SECURE = os.environ.get('COOKIE_SECURE', 'false').lower() == 'true'
+    REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
+
+    # Tamaño máximo de una petición (3 imágenes de habitación + formulario)
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+    # Solo en desarrollo: mostrar en pantalla el token de recuperación de contraseña.
+    # En producción debe ser false, o cualquiera que conozca un correo podría cambiar su contraseña.
+    MOSTRAR_TOKEN_RECUPERACION = os.environ.get('MOSTRAR_TOKEN_RECUPERACION', 'false').lower() == 'true'
 
     # Configuración de Idiomas (Babel)
     LANGUAGES = ['es', 'en']
