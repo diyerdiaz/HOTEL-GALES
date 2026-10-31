@@ -37,6 +37,10 @@ def index():
         _wd, ultimo_dia = calendar.monthrange(hoy.year, hoy.month)
         fecha_fin = hoy.replace(day=ultimo_dia).date()
 
+    # fechaFactura guarda fecha y hora: se usa "antes del día siguiente" para no
+    # excluir las facturas emitidas durante el último día del mes
+    fecha_fin_exclusiva = fecha_fin + timedelta(days=1)
+
     # 3. Listado de Reservas del Mes
     reservas_mes = Reserva.query.filter(
         Reserva.fechaEntrada >= fecha_inicio,
@@ -52,7 +56,7 @@ def index():
      .join(Factura, Reserva.idReserva == Factura.idReserva)\
      .filter(
          Factura.fechaFactura >= fecha_inicio, 
-         Factura.fechaFactura <= fecha_fin,
+         Factura.fechaFactura < fecha_fin_exclusiva,
          Reserva.estadoReserva.in_(['confirmada', 'finalizada'])
      )\
      .group_by(Cliente.cedula, Cliente.nombre, Cliente.apellido)\
@@ -64,7 +68,7 @@ def index():
         .join(Reserva)\
         .filter(
             Factura.fechaFactura >= fecha_inicio, 
-            Factura.fechaFactura <= fecha_fin,
+            Factura.fechaFactura < fecha_fin_exclusiva,
             Reserva.estadoReserva.in_(['confirmada', 'finalizada'])
         ).scalar() or 0
     total_ganancias_mes = float(total_ganancias_mes)

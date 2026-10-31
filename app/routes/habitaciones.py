@@ -15,7 +15,8 @@ CAMPOS_IMAGEN = ('imagen1', 'imagen2', 'imagen3')
 
 
 def _carpeta_imagenes():
-    carpeta = os.path.join(current_app.static_folder, 'uploads', 'habitaciones')
+    carpeta = current_app.config.get('HABITACIONES_UPLOAD_FOLDER') or \
+        os.path.join(current_app.static_folder, 'uploads', 'habitaciones')
     os.makedirs(carpeta, exist_ok=True)
     return carpeta
 
