@@ -226,6 +226,23 @@ class TestImagenesHabitaciones(HotelTestCase):
 
         self.assertIn(f"uploads/habitaciones/{hab.imagen1}", contenido)
 
+    def test_13b_tarjeta_del_listado_usa_la_primera_imagen_de_fondo(self):
+        tipo = self.tipo_id()
+        self.client.post(
+            "/habitaciones/nueva",
+            data=self.datos(tipo_id=tipo, imagenes=[imagen_png(), imagen_png()]),
+            content_type="multipart/form-data",
+        )
+        self.client.post("/habitaciones/nueva", data=self.datos(numero="502", tipo_id=tipo),
+                         content_type="multipart/form-data")
+        hab = self.habitacion(501)
+
+        contenido = self.client.get("/habitaciones/").get_data(as_text=True)
+
+        self.assertEqual(contenido.count("room-card-imagen\""), 1)
+        self.assertIn(f"uploads/habitaciones/{hab.imagen1}", contenido)
+        self.assertNotIn(f"uploads/habitaciones/{hab.imagen2}", contenido)
+
     def test_14_eliminar_habitacion_borra_sus_archivos(self):
         self.client.post(
             "/habitaciones/nueva",
