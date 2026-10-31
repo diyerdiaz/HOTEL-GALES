@@ -125,7 +125,7 @@ class TestVulnerabilidades(HotelTestCase):
         self.iniciar_sesion("admin.estado")
         hab_id = self.crear_habitacion(numero=702)
 
-        self.client.post(f"/habitaciones/estado/{hab_id}/<b>hackeado</b>")
+        self.client.post(f"/habitaciones/estado/{hab_id}/<script>hackeado")
 
         with self.app.app_context():
             self.assertEqual(Habitacion.query.get(hab_id).estadoHabitacion, "disponible")
