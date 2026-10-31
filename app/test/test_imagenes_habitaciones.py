@@ -243,6 +243,21 @@ class TestImagenesHabitaciones(HotelTestCase):
         self.assertIn(f"uploads/habitaciones/{hab.imagen1}", contenido)
         self.assertNotIn(f"uploads/habitaciones/{hab.imagen2}", contenido)
 
+    def test_13c_vista_publica_usa_la_primera_imagen_de_fondo(self):
+        self.client.post(
+            "/habitaciones/nueva",
+            data=self.datos(imagenes=[imagen_png(), imagen_png()]),
+            content_type="multipart/form-data",
+        )
+        hab = self.habitacion(501)
+        self.client.get("/logout")
+
+        contenido = self.client.get("/habitaciones/publica").get_data(as_text=True)
+
+        self.assertIn('room-card-imagen"', contenido)
+        self.assertIn(f"uploads/habitaciones/{hab.imagen1}", contenido)
+        self.assertNotIn(f"uploads/habitaciones/{hab.imagen2}", contenido)
+
     def test_14_eliminar_habitacion_borra_sus_archivos(self):
         self.client.post(
             "/habitaciones/nueva",
