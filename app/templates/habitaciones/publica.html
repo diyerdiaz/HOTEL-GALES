@@ -61,12 +61,12 @@
         <div class="card filter-card mb-4 shadow">
             <div class="card-body">
                 <h5 class="card-title mb-3"><i class="bi bi-funnel"></i> {{ _('Filtrar Habitaciones') }}</h5>
-                <form action="{{ url_for('habitaciones.publica') }}" method="GET" class="row g-3">
-                    <div class="col-md-3">
+                <form action="{{ url_for('habitaciones.publica') }}" method="GET" class="row g-2 g-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small">{{ _('Buscar por número') }}</label>
                         <input type="text" name="busqueda" class="form-control form-control-sm" value="{{ busqueda }}" placeholder="{{ _('Número') }}">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small">{{ _('Tipo de habitación') }}</label>
                         <select name="tipo" class="form-select form-select-sm">
                             <option value="">{{ _('Todos') }}</option>
@@ -77,15 +77,15 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Precio mínimo') }}</label>
                         <input type="number" name="precio_min" class="form-control form-control-sm" value="{{ precio_min }}" placeholder="{{ _('Min') }}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Precio máximo') }}</label>
                         <input type="number" name="precio_max" class="form-control form-control-sm" value="{{ precio_max }}" placeholder="{{ _('Max') }}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label small">{{ _('Estado') }}</label>
                         <select name="estado" class="form-select form-select-sm">
                             <option value="disponible" {% if estado == 'disponible' %}selected{% endif %}>{{ _('Disponible') }}</option>
