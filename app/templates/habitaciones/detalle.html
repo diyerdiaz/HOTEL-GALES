@@ -174,29 +174,47 @@
 {% if hab.imagenes %}
 <!-- Visor de imágenes: se abre al hacer clic en una foto de la habitación -->
 <div class="modal fade visor-imagenes" id="visorImagenes" tabindex="-1" aria-label="{{ _('Imágenes de la habitación') }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
-      <button type="button" class="btn-close btn-close-white visor-cerrar" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
-      <div id="carruselVisor" class="carousel slide" data-bs-interval="false" data-bs-touch="true">
+      <!-- Barra superior: habitación, contador y cerrar -->
+      <div class="visor-barra-superior">
+        <div class="visor-titulo">
+          <span class="visor-habitacion">{{ _('Habitación') }} {{ hab.numeroHabitacion }}</span>
+          {% if hab.tipo %}<span class="visor-tipo">{{ hab.tipo.nombreTipo }}</span>{% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          {% if hab.imagenes|length > 1 %}
+          <span class="visor-contador"><span id="visorActual">1</span> / {{ hab.imagenes|length }}</span>
+          {% endif %}
+          <button type="button" class="visor-boton visor-cerrar" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="carruselVisor" class="carousel slide carousel-fade" data-bs-interval="false" data-bs-touch="true">
         <div class="carousel-inner">
           {% for img in hab.imagenes %}
+          {% set ruta = url_for('static', filename='uploads/habitaciones/' ~ img) %}
           <div class="carousel-item {% if loop.first %}active{% endif %}">
-            <img src="{{ url_for('static', filename='uploads/habitaciones/' ~ img) }}" class="d-block w-100"
-                 alt="{{ _('Habitación') }} {{ hab.numeroHabitacion }} - {{ loop.index }}">
+            <!-- La misma foto desenfocada rellena el fondo, así la ventana nunca queda vacía -->
+            <div class="visor-fondo" style="background-image: url('{{ ruta }}');"></div>
+            <img src="{{ ruta }}" class="visor-foto" alt="{{ _('Habitación') }} {{ hab.numeroHabitacion }} - {{ loop.index }}">
           </div>
           {% endfor %}
         </div>
         {% if hab.imagenes|length > 1 %}
         <button class="carousel-control-prev" type="button" data-bs-target="#carruselVisor" data-bs-slide="prev">
-          <span class="visor-flecha"><i class="bi bi-chevron-left"></i></span>
+          <span class="visor-boton visor-flecha"><i class="bi bi-chevron-left"></i></span>
           <span class="visually-hidden">{{ _('Anterior') }}</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carruselVisor" data-bs-slide="next">
-          <span class="visor-flecha"><i class="bi bi-chevron-right"></i></span>
+          <span class="visor-boton visor-flecha"><i class="bi bi-chevron-right"></i></span>
           <span class="visually-hidden">{{ _('Siguiente') }}</span>
         </button>
         {% endif %}
       </div>
+
       {% if hab.imagenes|length > 1 %}
       <div class="visor-puntos">
         {% for img in hab.imagenes %}
@@ -218,66 +236,139 @@
   .visor-miniatura img { transition: transform 0.2s ease, box-shadow 0.2s ease; }
   .visor-miniatura:hover img { transform: scale(1.02); box-shadow: var(--shadow-lg) !important; }
 
+  .modal-backdrop.show { opacity: 0.85; }
+
   .visor-imagenes .modal-content {
-    background: #070d19;
-    border: 1px solid rgba(197, 160, 89, 0.35);
-    border-radius: 16px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
+    background: #05080f;
+    border: 1px solid rgba(197, 160, 89, 0.25);
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   }
-  .visor-imagenes .carousel-item img {
-    height: min(70vh, 560px);
-    object-fit: contain;
-    background: #070d19;
+
+  /* Cada foto ocupa toda la ventana */
+  .visor-imagenes .carousel-item {
+    position: relative;
+    height: min(80vh, 720px);
+    overflow: hidden;
   }
-  .visor-cerrar {
+  .visor-fondo {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 5;
-    background-color: rgba(0, 0, 0, 0.55);
-    border-radius: 50%;
-    padding: 0.6rem;
-    opacity: 1;
+    inset: -40px;
+    background-size: cover;
+    background-position: center;
+    filter: blur(32px) brightness(0.45) saturate(1.2);
+    transform: scale(1.1);
   }
-  .visor-imagenes .carousel-control-prev,
-  .visor-imagenes .carousel-control-next { width: 14%; opacity: 1; }
-  .visor-flecha {
+  .visor-foto {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Barra superior sobre la foto */
+  .visor-barra-superior {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 40px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
+    pointer-events: none;
+  }
+  .visor-barra-superior > * { pointer-events: auto; }
+  .visor-titulo { display: flex; flex-direction: column; line-height: 1.2; }
+  .visor-habitacion {
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+  }
+  .visor-tipo {
+    color: #dfba75;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .visor-contador {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Botones redondos de vidrio (cerrar y flechas) */
+  .visor-boton {
     width: 44px;
     height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.55);
-    border: 1px solid rgba(197, 160, 89, 0.6);
     color: #fff;
-    font-size: 1.3rem;
-    transition: background 0.2s ease;
+    font-size: 1.15rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
+  .visor-cerrar:hover { background: rgba(255, 255, 255, 0.25); }
+  .visor-imagenes .carousel-control-prev,
+  .visor-imagenes .carousel-control-next { width: 12%; opacity: 1; z-index: 4; }
   .visor-imagenes .carousel-control-prev:hover .visor-flecha,
-  .visor-imagenes .carousel-control-next:hover .visor-flecha { background: #c5a059; color: #0b192c; }
+  .visor-imagenes .carousel-control-next:hover .visor-flecha {
+    background: #c5a059;
+    border-color: #c5a059;
+    color: #0b192c;
+    transform: scale(1.08);
+  }
 
+  /* Puntitos sobre la parte de abajo de la foto */
   .visor-puntos {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
     display: flex;
     justify-content: center;
     gap: 10px;
-    padding: 14px 0;
+    padding: 40px 0 18px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+    pointer-events: none;
   }
   .visor-puntos button {
-    width: 10px;
-    height: 10px;
+    pointer-events: auto;
+    width: 9px;
+    height: 9px;
     padding: 0;
     border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.35);
-    transition: background 0.2s ease, transform 0.2s ease;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.45);
+    transition: width 0.25s ease, background 0.25s ease;
   }
-  .visor-puntos button.active { background: #c5a059; transform: scale(1.25); }
+  .visor-puntos button:hover { background: rgba(255, 255, 255, 0.8); }
+  .visor-puntos button.active { width: 26px; background: #c5a059; }
 
   @media (max-width: 576px) {
-    .visor-imagenes .carousel-item img { height: 60vh; }
-    .visor-flecha { width: 36px; height: 36px; font-size: 1.1rem; }
+    .visor-imagenes .modal-dialog { margin: 0.5rem; }
+    .visor-imagenes .carousel-item { height: 70vh; }
+    .visor-boton { width: 38px; height: 38px; font-size: 1rem; }
+    .visor-imagenes .carousel-control-prev,
+    .visor-imagenes .carousel-control-next { width: 18%; }
   }
 </style>
 {% endblock %}
@@ -287,24 +378,28 @@
   (function () {
     const visor = document.getElementById('visorImagenes');
     if (!visor) return;
-    const carrusel = bootstrap.Carousel.getOrCreateInstance(document.getElementById('carruselVisor'));
+    const elementoCarrusel = document.getElementById('carruselVisor');
+    const carrusel = bootstrap.Carousel.getOrCreateInstance(elementoCarrusel);
     const puntos = visor.querySelectorAll('.visor-puntos button');
+    const contador = document.getElementById('visorActual');
+
+    function marcar(indice) {
+      puntos.forEach((p, i) => {
+        p.classList.toggle('active', i === indice);
+        if (i === indice) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current');
+      });
+      if (contador) contador.textContent = indice + 1;
+    }
 
     // Abrir el visor en la imagen a la que se le hizo clic
     visor.addEventListener('show.bs.modal', function (evento) {
       const indice = parseInt(evento.relatedTarget?.dataset.indice || '0', 10);
-      const items = visor.querySelectorAll('.carousel-item');
-      items.forEach((item, i) => item.classList.toggle('active', i === indice));
-      puntos.forEach((p, i) => p.classList.toggle('active', i === indice));
+      visor.querySelectorAll('.carousel-item').forEach((item, i) => item.classList.toggle('active', i === indice));
+      marcar(indice);
     });
 
-    // Mantener los puntitos sincronizados con la imagen visible
-    document.getElementById('carruselVisor').addEventListener('slid.bs.carousel', function (evento) {
-      puntos.forEach((p, i) => {
-        p.classList.toggle('active', i === evento.to);
-        if (i === evento.to) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current');
-      });
-    });
+    // Mantener puntitos y contador sincronizados con la imagen visible
+    elementoCarrusel.addEventListener('slid.bs.carousel', evento => marcar(evento.to));
 
     // Flechas del teclado mientras el visor está abierto
     visor.addEventListener('keydown', function (evento) {
