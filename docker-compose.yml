@@ -10,6 +10,8 @@ services:
       - FLASK_ENV=${FLASK_ENV}
       - FLASK_DEBUG=${FLASK_DEBUG}
       - SECRET_KEY=${SECRET_KEY}
+      # PostgreSQL: o DATABASE_URL completa, o las cinco variables DB_*
+      - DATABASE_URL=${DATABASE_URL}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_HOST=${DB_HOST}
@@ -28,8 +30,17 @@ services:
       - MAIL_SENDER=${MAIL_SENDER}
       - MAIL_SENDER_NAME=${MAIL_SENDER_NAME}
     restart: always
+    # Carpetas que deben sobrevivir a cada despliegue: fotos de habitaciones
+    # y la base SQLite de respaldo (solo se usa si no hay PostgreSQL configurado)
+    volumes:
+      - uploads:/app/app/static/uploads
+      - instance:/app/instance
     networks:
       - coolify
+
+volumes:
+  uploads:
+  instance:
 
 networks:
   coolify:

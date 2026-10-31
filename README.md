@@ -388,6 +388,7 @@ El sistema crea automáticamente un usuario administrador en el primer inicio. C
 
 | Variable | Defecto | Descripción |
 |:---------|:--------|:------------|
+| `DATABASE_URL` | — | URL completa de PostgreSQL (tiene prioridad sobre las `DB_*`) |
 | `DB_USER` | — | Usuario PostgreSQL |
 | `DB_PASS` | — | Contraseña PostgreSQL |
 | `DB_HOST` | — | Host PostgreSQL |
