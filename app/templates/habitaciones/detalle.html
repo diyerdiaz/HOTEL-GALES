@@ -20,7 +20,8 @@
         <div class="row g-2 mb-4">
           {% for img in hab.imagenes %}
           <div class="col-{{ 12 // hab.imagenes|length }}">
-            <a href="{{ url_for('static', filename='uploads/habitaciones/' ~ img) }}" target="_blank">
+            <a href="{{ url_for('static', filename='uploads/habitaciones/' ~ img) }}" class="visor-miniatura"
+               data-bs-toggle="modal" data-bs-target="#visorImagenes" data-indice="{{ loop.index0 }}">
               <img src="{{ url_for('static', filename='uploads/habitaciones/' ~ img) }}" class="w-100 rounded-4 shadow-sm" style="height: 220px; object-fit: cover;" alt="{{ _('Habitación') }} {{ hab.numeroHabitacion }}">
             </a>
           </div>
@@ -167,4 +168,149 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_modals %}
+{% if hab.imagenes %}
+<!-- Visor de imágenes: se abre al hacer clic en una foto de la habitación -->
+<div class="modal fade visor-imagenes" id="visorImagenes" tabindex="-1" aria-label="{{ _('Imágenes de la habitación') }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <button type="button" class="btn-close btn-close-white visor-cerrar" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+      <div id="carruselVisor" class="carousel slide" data-bs-interval="false" data-bs-touch="true">
+        <div class="carousel-inner">
+          {% for img in hab.imagenes %}
+          <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ url_for('static', filename='uploads/habitaciones/' ~ img) }}" class="d-block w-100"
+                 alt="{{ _('Habitación') }} {{ hab.numeroHabitacion }} - {{ loop.index }}">
+          </div>
+          {% endfor %}
+        </div>
+        {% if hab.imagenes|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carruselVisor" data-bs-slide="prev">
+          <span class="visor-flecha"><i class="bi bi-chevron-left"></i></span>
+          <span class="visually-hidden">{{ _('Anterior') }}</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carruselVisor" data-bs-slide="next">
+          <span class="visor-flecha"><i class="bi bi-chevron-right"></i></span>
+          <span class="visually-hidden">{{ _('Siguiente') }}</span>
+        </button>
+        {% endif %}
+      </div>
+      {% if hab.imagenes|length > 1 %}
+      <div class="visor-puntos">
+        {% for img in hab.imagenes %}
+        <button type="button" data-bs-target="#carruselVisor" data-bs-slide-to="{{ loop.index0 }}"
+                class="{% if loop.first %}active{% endif %}" {% if loop.first %}aria-current="true"{% endif %}
+                aria-label="{{ _('Imagen') }} {{ loop.index }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .visor-miniatura { display: block; cursor: zoom-in; }
+  .visor-miniatura img { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .visor-miniatura:hover img { transform: scale(1.02); box-shadow: var(--shadow-lg) !important; }
+
+  .visor-imagenes .modal-content {
+    background: #070d19;
+    border: 1px solid rgba(197, 160, 89, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+  .visor-imagenes .carousel-item img {
+    height: min(70vh, 560px);
+    object-fit: contain;
+    background: #070d19;
+  }
+  .visor-cerrar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 50%;
+    padding: 0.6rem;
+    opacity: 1;
+  }
+  .visor-imagenes .carousel-control-prev,
+  .visor-imagenes .carousel-control-next { width: 14%; opacity: 1; }
+  .visor-flecha {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(197, 160, 89, 0.6);
+    color: #fff;
+    font-size: 1.3rem;
+    transition: background 0.2s ease;
+  }
+  .visor-imagenes .carousel-control-prev:hover .visor-flecha,
+  .visor-imagenes .carousel-control-next:hover .visor-flecha { background: #c5a059; color: #0b192c; }
+
+  .visor-puntos {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 0;
+  }
+  .visor-puntos button {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .visor-puntos button.active { background: #c5a059; transform: scale(1.25); }
+
+  @media (max-width: 576px) {
+    .visor-imagenes .carousel-item img { height: 60vh; }
+    .visor-flecha { width: 36px; height: 36px; font-size: 1.1rem; }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    const visor = document.getElementById('visorImagenes');
+    if (!visor) return;
+    const carrusel = bootstrap.Carousel.getOrCreateInstance(document.getElementById('carruselVisor'));
+    const puntos = visor.querySelectorAll('.visor-puntos button');
+
+    // Abrir el visor en la imagen a la que se le hizo clic
+    visor.addEventListener('show.bs.modal', function (evento) {
+      const indice = parseInt(evento.relatedTarget?.dataset.indice || '0', 10);
+      const items = visor.querySelectorAll('.carousel-item');
+      items.forEach((item, i) => item.classList.toggle('active', i === indice));
+      puntos.forEach((p, i) => p.classList.toggle('active', i === indice));
+    });
+
+    // Mantener los puntitos sincronizados con la imagen visible
+    document.getElementById('carruselVisor').addEventListener('slid.bs.carousel', function (evento) {
+      puntos.forEach((p, i) => {
+        p.classList.toggle('active', i === evento.to);
+        if (i === evento.to) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current');
+      });
+    });
+
+    // Flechas del teclado mientras el visor está abierto
+    visor.addEventListener('keydown', function (evento) {
+      if (evento.key === 'ArrowLeft') carrusel.prev();
+      if (evento.key === 'ArrowRight') carrusel.next();
+    });
+  })();
+</script>
 {% endblock %}
