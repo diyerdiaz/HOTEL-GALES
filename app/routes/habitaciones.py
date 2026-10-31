@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import os
+import uuid
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_babel import gettext as _
 from flask_login import login_required, current_user
 from app import db
@@ -7,6 +9,49 @@ from app.models.tipohabitacion import TipoHabitacion
 from app.utils.decorators import requiere_permiso
 
 bp = Blueprint('habitaciones', __name__, url_prefix='/habitaciones')
+
+EXTENSIONES_IMAGEN = {'jpg', 'jpeg', 'png', 'webp'}
+CAMPOS_IMAGEN = ('imagen1', 'imagen2', 'imagen3')
+
+
+def _carpeta_imagenes():
+    carpeta = os.path.join(current_app.static_folder, 'uploads', 'habitaciones')
+    os.makedirs(carpeta, exist_ok=True)
+    return carpeta
+
+
+def _validar_imagenes():
+    """Devuelve un mensaje de error si algún archivo no es una imagen permitida"""
+    for campo in CAMPOS_IMAGEN:
+        archivo = request.files.get(campo)
+        if archivo and archivo.filename:
+            ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
+            if ext not in EXTENSIONES_IMAGEN:
+                return _('Solo se permiten imágenes JPG, PNG o WEBP')
+    return None
+
+
+def _borrar_imagen(nombre):
+    if nombre:
+        ruta = os.path.join(_carpeta_imagenes(), nombre)
+        if os.path.exists(ruta):
+            os.remove(ruta)
+
+
+def _guardar_imagenes(hab):
+    """Guarda las imágenes enviadas en el formulario y reemplaza/elimina las anteriores"""
+    for campo in CAMPOS_IMAGEN:
+        if request.form.get(f'eliminar_{campo}'):
+            _borrar_imagen(getattr(hab, campo))
+            setattr(hab, campo, None)
+
+        archivo = request.files.get(campo)
+        if archivo and archivo.filename:
+            ext = archivo.filename.rsplit('.', 1)[-1].lower()
+            nombre = f"{uuid.uuid4().hex}.{ext}"
+            archivo.save(os.path.join(_carpeta_imagenes(), nombre))
+            _borrar_imagen(getattr(hab, campo))
+            setattr(hab, campo, nombre)
 
 @bp.route('/publica')
 def publica():
@@ -180,6 +225,11 @@ def nueva():
         if len(str(precio)) > 7:
             flash(_('El precio no puede tener más de 7 dígitos'), 'error')
             return redirect(url_for('habitaciones.nueva'))
+
+        error_imagen = _validar_imagenes()
+        if error_imagen:
+            flash(error_imagen, 'error')
+            return redirect(url_for('habitaciones.nueva'))
         
         nueva_hab = Habitacion(
             numeroHabitacion=numero,
@@ -187,6 +237,7 @@ def nueva():
             precioNoche=precio,
             estadoHabitacion=estado
         )
+        _guardar_imagenes(nueva_hab)
         db.session.add(nueva_hab)
         db.session.commit()
         flash(_('Habitación registrada con éxito'), 'success')
@@ -214,7 +265,13 @@ def editar(id):
         if len(str(hab.precioNoche)) > 7:
             flash(_('El precio no puede tener más de 7 dígitos'), 'error')
             return redirect(url_for('habitaciones.editar', id=id))
-        
+
+        error_imagen = _validar_imagenes()
+        if error_imagen:
+            flash(error_imagen, 'error')
+            return redirect(url_for('habitaciones.editar', id=id))
+
+        _guardar_imagenes(hab)
         db.session.commit()
         flash(_('Habitación actualizada con éxito'), 'success')
         return redirect(url_for('habitaciones.index'))
@@ -227,8 +284,11 @@ def editar(id):
 @requiere_permiso('eliminar_habitacion')
 def eliminar(id):
     hab = Habitacion.query.get_or_404(id)
+    imagenes = hab.imagenes
     db.session.delete(hab)
     db.session.commit()
+    for img in imagenes:
+        _borrar_imagen(img)
     flash(_('Habitación eliminada correctamente'), 'info')
     return redirect(url_for('habitaciones.index'))
 
