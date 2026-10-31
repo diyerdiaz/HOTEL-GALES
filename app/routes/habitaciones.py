@@ -1,6 +1,7 @@
 import os
 import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from PIL import Image
 from flask_babel import gettext as _
 from flask_login import login_required, current_user
 from app import db
@@ -11,6 +12,7 @@ from app.utils.decorators import requiere_permiso
 bp = Blueprint('habitaciones', __name__, url_prefix='/habitaciones')
 
 EXTENSIONES_IMAGEN = {'jpg', 'jpeg', 'png', 'webp'}
+FORMATOS_IMAGEN = {'JPEG', 'PNG', 'WEBP'}
 CAMPOS_IMAGEN = ('imagen1', 'imagen2', 'imagen3')
 ESTADOS_HABITACION = ('disponible', 'ocupada', 'mantenimiento', 'limpieza')
 
@@ -32,10 +34,15 @@ def _validar_imagenes(hab=None):
         ext = archivo.filename.rsplit('.', 1)[-1].lower() if '.' in archivo.filename else ''
         if ext not in EXTENSIONES_IMAGEN:
             return _('Solo se permiten imágenes JPG, PNG o WEBP')
-        archivo.stream.seek(0, os.SEEK_END)
-        vacia = archivo.stream.tell() == 0
+        # Se revisa el contenido real del archivo, no solo su extensión
+        try:
+            with Image.open(archivo.stream) as img:
+                formato = img.format
+                img.verify()
+        except Exception:
+            formato = None
         archivo.stream.seek(0)
-        if vacia:
+        if formato not in FORMATOS_IMAGEN:
             return _('La imagen %(nombre)s está vacía o dañada', nombre=archivo.filename)
 
     conservadas = 0

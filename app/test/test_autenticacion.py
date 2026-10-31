@@ -11,6 +11,11 @@ from app.test.base import HotelTestCase
 
 
 class TestAutenticacion(HotelTestCase):
+    def ultimo_token_recuperacion(self):
+        """El token llega por un canal privado (correo o registro), nunca en la respuesta HTTP."""
+        with self.app.app_context():
+            return PasswordResetToken.query.order_by(PasswordResetToken.id.desc()).first().token
+
     def datos_registro_validos(self, **cambios):
         datos = {
             "cedula": "12345678",
@@ -275,7 +280,7 @@ class TestAutenticacion(HotelTestCase):
             data={"email": "recuperar@example.com"},
             follow_redirects=False,
         )
-        token = respuesta.headers["Location"].rsplit("/", 1)[-1]
+        token = self.ultimo_token_recuperacion()
 
         with self.app.app_context():
             registro = PasswordResetToken.query.filter_by(token=token).one()
@@ -302,7 +307,7 @@ class TestAutenticacion(HotelTestCase):
             data={"email": "un.uso@example.com"},
             follow_redirects=False,
         )
-        token = respuesta.headers["Location"].rsplit("/", 1)[-1]
+        token = self.ultimo_token_recuperacion()
         self.client.post(
             f"/restablecer-contrasena/{token}",
             data={"password": "Cambiada123", "confirm_password": "Cambiada123"},
@@ -332,3 +337,38 @@ class TestAutenticacion(HotelTestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(respuesta.headers["Location"], "/recuperar-contrasena")
         self.assert_contiene_flash("inválido o ha expirado")
+
+    def test_31_recuperacion_no_entrega_el_token_a_quien_lo_solicita(self):
+        """Conocer el correo de alguien no debe bastar para cambiar su contraseña."""
+        self.crear_usuario("victima", cedula=11004, email="victima@example.com")
+
+        respuesta = self.client.post(
+            "/recuperar-contrasena",
+            data={"email": "victima@example.com"},
+            follow_redirects=False,
+        )
+
+        token = self.ultimo_token_recuperacion()
+        self.assertEqual(respuesta.headers["Location"], "/")
+        self.assertNotIn(token, respuesta.headers["Location"])
+        self.assertFalse(any(token in m for m in self.mensajes_flash()))
+        self.assert_contiene_flash("Si el correo está registrado")
+
+    def test_32_correo_registrado_y_no_registrado_responden_igual(self):
+        self.crear_usuario("existe", cedula=11005, email="existe@example.com")
+
+        existente = self.client.post("/recuperar-contrasena", data={"email": "existe@example.com"})
+        inexistente = self.client.post("/recuperar-contrasena", data={"email": "nadie@example.com"})
+
+        self.assertEqual(existente.status_code, inexistente.status_code)
+        self.assertEqual(existente.headers["Location"], inexistente.headers["Location"])
+
+    def test_33_modo_desarrollo_muestra_el_token(self):
+        self.crear_usuario("desarrollo", cedula=11006, email="dev@example.com")
+        self.app.config["MOSTRAR_TOKEN_RECUPERACION"] = True
+        try:
+            respuesta = self.client.post("/recuperar-contrasena", data={"email": "dev@example.com"})
+        finally:
+            self.app.config["MOSTRAR_TOKEN_RECUPERACION"] = False
+
+        self.assertIn(self.ultimo_token_recuperacion(), respuesta.headers["Location"])

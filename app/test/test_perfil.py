@@ -178,7 +178,6 @@ class TestPerfil(HotelTestCase):
         with self.app.app_context():
             self.assertIsNone(User.query.get(usuario_id))
 
-    @unittest.expectedFailure
     def test_13_eliminacion_de_cuenta_solo_acepta_post(self):
         usuario_id = self.crear_usuario("no.eliminar.get", cedula=12011)
         self.iniciar_sesion("no.eliminar.get")

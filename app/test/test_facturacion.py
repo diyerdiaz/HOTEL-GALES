@@ -138,7 +138,10 @@ class TestFacturacion(HotelTestCase):
             cedula=16010, nombre="Pública", apellido="Validación", total=620000
         )
 
-        respuesta = self.client.get(f"/facturas/validar/{factura_id}")
+        with self.app.test_request_context():
+            from app.routes.facturas import token_validacion
+            token = token_validacion(factura_id)
+        respuesta = self.client.get(f"/facturas/validar/{token}")
         contenido = respuesta.get_data(as_text=True)
 
         self.assertEqual(respuesta.status_code, 200)
@@ -146,3 +149,24 @@ class TestFacturacion(HotelTestCase):
         self.assertIn("Pública Validación", contenido)
         self.assertIn(f"****{str(cedula)[-4:]}", contenido)
         self.assertNotIn(f"C.C: {cedula}", contenido)
+
+    def test_12_validacion_publica_no_acepta_ids_secuenciales(self):
+        """Recorrer /validar/1, /validar/2... no debe exponer los datos de otros clientes."""
+        factura_id, _, nombre, apellido = self.crear_escenario_factura(
+            cedula=16011, nombre="Privada", apellido="Cliente", total=100000
+        )
+
+        respuesta = self.client.get(f"/facturas/validar/{factura_id}")
+
+        self.assertEqual(respuesta.status_code, 404)
+        self.assertNotIn("Privada Cliente", respuesta.get_data(as_text=True))
+
+    def test_13_validacion_publica_rechaza_token_alterado(self):
+        factura_id, *_ = self.crear_escenario_factura(cedula=16012, total=100000)
+        with self.app.test_request_context():
+            from app.routes.facturas import token_validacion
+            token = token_validacion(factura_id)
+
+        respuesta = self.client.get(f"/facturas/validar/{token[:-2]}xx")
+
+        self.assertEqual(respuesta.status_code, 404)

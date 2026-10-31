@@ -144,7 +144,7 @@ class TestHabitaciones(HotelTestCase):
         hab_id = self.crear_habitacion(numero=203)
         self.iniciar_sesion("admin.hab_elimina")
 
-        respuesta = self.client.get(f"/habitaciones/eliminar/{hab_id}", follow_redirects=False)
+        respuesta = self.client.post(f"/habitaciones/eliminar/{hab_id}", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
 
         with self.app.app_context():
@@ -160,7 +160,7 @@ class TestHabitaciones(HotelTestCase):
         self.assertEqual(resp_crear.status_code, 302)
         self.assertEqual(resp_crear.headers["Location"], "/menu")
 
-        resp_eliminar = self.client.get(f"/habitaciones/eliminar/{hab_id}")
+        resp_eliminar = self.client.post(f"/habitaciones/eliminar/{hab_id}")
         self.assertEqual(resp_eliminar.status_code, 302)
         self.assertEqual(resp_eliminar.headers["Location"], "/menu")
 
@@ -195,7 +195,7 @@ class TestHabitaciones(HotelTestCase):
         hab_id = self.crear_habitacion(numero=302, estado="limpieza")
 
         self.iniciar_sesion("personal.aseo")
-        respuesta = self.client.get(f"/habitaciones/estado/{hab_id}/disponible", follow_redirects=False)
+        respuesta = self.client.post(f"/habitaciones/estado/{hab_id}/disponible", follow_redirects=False)
         self.assertEqual(respuesta.status_code, 302)
 
         with self.app.app_context():
